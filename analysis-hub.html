@@ -1,210 +1,655 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SRAM Analysis Hub</title>
+  <title>SRAM AI Playbook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --sram-red: #e10600;
-      --ink: #101114;
-      --ink-soft: #4b5563;
-      --line: #d8dde5;
-      --bg: #f3f5f8;
+      --red: #e10600;
+      --red-dim: rgba(225,6,0,0.12);
+      --ink: #0d1117;
+      --ink-2: #374151;
+      --ink-3: #6b7280;
+      --bg: #f5f7fa;
       --panel: #ffffff;
-      --charcoal: #111318;
+      --border: #e5e8ee;
+      --nav-bg: #0d1117;
+      --nav-text: #c9d5e8;
+      --nav-active: #ffffff;
+      --nav-hover-bg: rgba(255,255,255,0.06);
+      --accent: #3b82f6;
+      --code-bg: #f1f3f7;
+      --shadow: 0 4px 24px rgba(13,17,23,0.07);
+      --shadow-lg: 0 8px 40px rgba(13,17,23,0.12);
+      --transition: 200ms cubic-bezier(0.4,0,0.2,1);
     }
 
-    * { box-sizing: border-box; }
+    [data-theme="dark"] {
+      --ink: #f0f4f8;
+      --ink-2: #cbd5e1;
+      --ink-3: #94a3b8;
+      --bg: #0d1117;
+      --panel: #161b22;
+      --border: #30363d;
+      --code-bg: #1e2530;
+      --shadow: 0 4px 24px rgba(0,0,0,0.3);
+      --shadow-lg: 0 8px 40px rgba(0,0,0,0.4);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
 
     body {
-      margin: 0;
-      font-family: "Avenir Next", "Segoe UI", Arial, sans-serif;
+      font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
       color: var(--ink);
-      background:
-        radial-gradient(circle at 7% -6%, rgba(225, 6, 0, 0.13), transparent 44%),
-        radial-gradient(circle at 100% 0, rgba(16, 24, 40, 0.18), transparent 35%),
-        var(--bg);
-      line-height: 1.5;
+      line-height: 1.6;
+      font-size: 15px;
+      transition: background var(--transition), color var(--transition);
     }
 
+    /* ── PROGRESS BAR ── */
+    #progress {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      width: 0%;
+      background: var(--red);
+      z-index: 9999;
+      transition: width 80ms linear;
+    }
+
+    /* ── LAYOUT ── */
     .layout {
       display: grid;
-      grid-template-columns: 300px 1fr;
+      grid-template-columns: 280px 1fr;
       min-height: 100vh;
     }
 
+    /* ── SIDEBAR ── */
     nav {
       position: sticky;
       top: 0;
       height: 100vh;
-      overflow: auto;
-      padding: 22px 16px;
-      background: linear-gradient(180deg, #0f1116 0%, #141925 100%);
-      color: #f3f4f6;
-      border-right: 2px solid rgba(225, 6, 0, 0.55);
+      overflow-y: auto;
+      background: var(--nav-bg);
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid rgba(225,6,0,0.3);
     }
 
-    .brand {
-      margin: 0 0 4px;
-      font-size: 22px;
-      letter-spacing: 0.2px;
+    nav::-webkit-scrollbar { width: 4px; }
+    nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+    .nav-top {
+      padding: 20px 18px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .nav-brand {
+      font-size: 17px;
       font-weight: 800;
       color: #fff;
+      letter-spacing: -0.3px;
     }
 
-    .sub {
-      margin: 0 0 14px;
-      font-size: 12px;
-      color: #c9d2df;
-    }
+    .nav-brand span { color: var(--red); }
 
-    .count-pill {
-      display: inline-block;
+    .nav-sub {
       font-size: 11px;
-      color: #fff;
-      background: rgba(225, 6, 0, 0.9);
-      border-radius: 999px;
-      padding: 4px 8px;
-      margin-bottom: 12px;
-      font-weight: 700;
-      letter-spacing: 0.3px;
+      color: #64748b;
+      margin-top: 2px;
     }
 
-    nav ul { margin: 0; padding: 0; list-style: none; }
-    nav li { margin: 0 0 8px; }
+    .nav-search {
+      margin-top: 12px;
+      position: relative;
+    }
 
-    nav a {
+    .nav-search input {
+      width: 100%;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 7px 10px 7px 30px;
+      font-size: 12px;
+      color: #fff;
+      font-family: inherit;
+      outline: none;
+      transition: border-color var(--transition);
+    }
+
+    .nav-search input::placeholder { color: #64748b; }
+    .nav-search input:focus { border-color: rgba(225,6,0,0.5); }
+
+    .nav-search svg {
+      position: absolute;
+      left: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.4;
+    }
+
+    .nav-links {
+      flex: 1;
+      padding: 10px 10px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .nav-group-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: #4b5563;
+      padding: 10px 8px 4px;
+    }
+
+    .nav-link {
       display: block;
       text-decoration: none;
-      color: #d8e1ef;
+      color: var(--nav-text);
       font-size: 13px;
-      line-height: 1.35;
-      padding: 8px 9px;
-      border-radius: 8px;
+      padding: 7px 10px;
+      border-radius: 7px;
       border: 1px solid transparent;
-      transition: 140ms ease;
+      transition: all var(--transition);
+      line-height: 1.35;
     }
 
-    nav a:hover {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(255, 255, 255, 0.18);
+    .nav-link:hover {
+      background: var(--nav-hover-bg);
       color: #fff;
+      border-color: rgba(255,255,255,0.08);
     }
 
-    main { padding: 18px 22px 28px; }
-
-    .hero {
-      background: linear-gradient(120deg, #fff 0%, #f8fafc 100%);
-      border: 1px solid var(--line);
-      border-left: 5px solid var(--sram-red);
-      border-radius: 12px;
-      padding: 14px 14px 12px;
-      margin-bottom: 12px;
+    .nav-link.active {
+      background: rgba(225,6,0,0.15);
+      border-color: rgba(225,6,0,0.3);
+      color: var(--nav-active);
     }
 
-    .hero h1 { margin: 0 0 4px; font-size: 24px; }
-    .hero p { margin: 0; font-size: 13px; color: var(--ink-soft); }
+    .nav-link .nav-label { display: block; }
 
-    .toolbar { display: flex; gap: 8px; justify-content: flex-end; margin: 0 0 10px; }
+    .nav-bottom {
+      padding: 14px 18px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      gap: 8px;
+    }
 
-    button {
-      border: 1px solid #232937;
-      background: #1b2130;
-      color: #fff;
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-size: 12px;
+    .btn-ghost {
+      flex: 1;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #c9d5e8;
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 11px;
+      font-family: inherit;
       cursor: pointer;
+      transition: all var(--transition);
+      text-align: center;
     }
 
-    .secondary { background: #fff; color: #1b2130; }
+    .btn-ghost:hover { background: rgba(255,255,255,0.13); color: #fff; }
 
+    /* ── MAIN ── */
+    main {
+      padding: 28px 32px 60px;
+      max-width: 900px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 32px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--red), #ff6b35, var(--red));
+      background-size: 200% 100%;
+      animation: shimmer 3s infinite linear;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .hero-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .hero h1 {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .hero-sub {
+      font-size: 13px;
+      color: var(--ink-3);
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      transition: all var(--transition);
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--ink);
+      color: #fff;
+    }
+
+    [data-theme="dark"] .btn-primary { background: #fff; color: #0d1117; }
+
+    .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--ink-2);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover { background: var(--bg); transform: translateY(-1px); }
+
+    /* ── METRICS STRIP ── */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .metric {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+
+    .metric:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+
+    .metric-value {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--red);
+    }
+
+    .metric-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ink-3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    .metric-sub {
+      font-size: 12px;
+      color: var(--ink-3);
+      margin-top: 2px;
+    }
+
+    /* ── FILTER CHIPS ── */
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .chip {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--ink-2);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .chip:hover, .chip.active {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+
+    [data-theme="dark"] .chip:hover,
+    [data-theme="dark"] .chip.active {
+      background: #fff;
+      color: #0d1117;
+      border-color: #fff;
+    }
+
+    /* ── DOC CARDS ── */
     .doc {
       background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 16px 17px;
-      margin-bottom: 14px;
-      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: box-shadow var(--transition), transform var(--transition);
+    }
+
+    .doc:hover { box-shadow: var(--shadow-lg); }
+
+    .doc.hidden { display: none; }
+
+    .doc-header {
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .doc-header:hover .doc-title { color: var(--red); }
+
+    .doc-folder {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 999px;
+      flex-shrink: 0;
     }
 
     .doc-title {
-      margin: 0 0 12px;
-      font-size: 17px;
-      border-bottom: 1px solid var(--line);
-      padding-bottom: 6px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+      transition: color var(--transition);
+      flex: 1;
     }
 
-    h1, h2, h3, h4, h5, h6 { margin: 12px 0 6px; color: #101114; line-height: 1.3; }
-    p { margin: 6px 0; font-size: 14px; }
-    ul { margin: 6px 0 8px 20px; padding: 0; }
-    li { margin: 4px 0; font-size: 14px; }
+    .doc-toggle {
+      font-size: 18px;
+      color: var(--ink-3);
+      transition: transform var(--transition);
+      flex-shrink: 0;
+    }
 
-    code {
-      background: #f3f4f6;
-      padding: 1px 4px;
-      border-radius: 4px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    .doc.collapsed .doc-toggle { transform: rotate(-90deg); }
+    .doc.collapsed .doc-body { display: none; }
+
+    .doc-body {
+      padding: 18px 20px 20px;
+    }
+
+    /* ── TYPOGRAPHY ── */
+    .doc-body h1 { font-size: 20px; font-weight: 700; margin: 20px 0 8px; color: var(--ink); }
+    .doc-body h2 { font-size: 17px; font-weight: 700; margin: 18px 0 8px; color: var(--ink); padding-left: 10px; border-left: 3px solid var(--red); }
+    .doc-body h3 { font-size: 14px; font-weight: 600; margin: 14px 0 6px; color: var(--ink-2); }
+    .doc-body h4 { font-size: 13px; font-weight: 600; margin: 10px 0 4px; color: var(--ink-2); }
+    .doc-body p { margin: 7px 0; font-size: 14px; color: var(--ink-2); line-height: 1.7; }
+    .doc-body ul { margin: 7px 0 10px 18px; }
+    .doc-body li { margin: 5px 0; font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+    .doc-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+    .doc-body strong { color: var(--ink); font-weight: 600; }
+    .doc-body a { color: var(--accent); text-decoration: none; }
+    .doc-body a:hover { text-decoration: underline; }
+
+    .doc-body code {
+      background: var(--code-bg);
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
       font-size: 12px;
+      color: var(--red);
+      border: 1px solid var(--border);
     }
 
-    pre {
-      background: #0b1020;
-      color: #f1f5f9;
-      padding: 10px 12px;
-      border-radius: 8px;
+    .doc-body pre {
+      background: #0d1117;
+      color: #e2e8f0;
+      padding: 14px 16px;
+      border-radius: 10px;
       overflow: auto;
+      margin: 10px 0;
+      font-size: 13px;
     }
 
-    pre code { background: transparent; padding: 0; color: inherit; }
+    .doc-body pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+      border: none;
+      font-size: inherit;
+    }
 
-    table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; font-size: 13px; }
-    th, td { border: 1px solid var(--line); padding: 7px 8px; text-align: left; vertical-align: top; }
-    th { background: #f8fafc; }
+    /* ── TABLES ── */
+    .table-wrap { overflow-x: auto; margin: 10px 0 14px; border-radius: 10px; border: 1px solid var(--border); }
 
-    a { color: #1d4ed8; }
+    .doc-body table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 480px;
+    }
 
-    @media (max-width: 980px) {
+    .doc-body th, .doc-body td {
+      padding: 9px 12px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .doc-body th {
+      background: var(--bg);
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--ink-2);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .doc-body tr:last-child td { border-bottom: none; }
+    .doc-body tr:hover td { background: rgba(0,0,0,0.015); }
+    [data-theme="dark"] .doc-body tr:hover td { background: rgba(255,255,255,0.025); }
+
+    /* ── ANIMATIONS ── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 400ms ease, transform 400ms ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── SEARCH HIGHLIGHT ── */
+    mark {
+      background: rgba(225,6,0,0.18);
+      color: inherit;
+      border-radius: 2px;
+      padding: 0 1px;
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--ink);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 300ms ease;
+      pointer-events: none;
+      z-index: 9998;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
       .layout { grid-template-columns: 1fr; }
-      nav { position: relative; height: auto; border-right: none; border-bottom: 2px solid rgba(225, 6, 0, 0.55); }
-      main { padding: 12px; }
-      .doc { padding: 12px; }
-      .hero h1 { font-size: 21px; }
+      nav { position: relative; height: auto; }
+      main { padding: 16px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
     }
 
+    @media (max-width: 540px) {
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .hero-row { flex-direction: column; }
+    }
+
+    /* ── PRINT ── */
     @media print {
       @page { size: Letter portrait; margin: 0.45in; }
-      body { background: #fff; }
-      nav, .toolbar { display: none !important; }
+      body { background: #fff; color: #000; }
+      #progress, nav, .hero-actions, .filters, .chip,
+      .doc-toggle, .btn, .toast { display: none !important; }
       .layout { grid-template-columns: 1fr; }
-      main { padding: 0; }
-      .hero { border: 1px solid #cfd6de; border-left: 3px solid #aaa; margin-bottom: 8px; }
-      .doc { border: none; border-radius: 0; box-shadow: none; padding: 0; margin: 0 0 12px; page-break-inside: avoid; }
-      .doc-title { border-bottom: 1px solid #bbb; }
+      main { padding: 0; max-width: 100%; }
+      .doc { border: 1px solid #ccc; box-shadow: none; page-break-inside: avoid; margin-bottom: 12px; }
+      .doc.collapsed .doc-body { display: block !important; }
+      .hero { border: 1px solid #ccc; }
+      .metrics { gap: 8px; }
+      .metric { border: 1px solid #ccc; box-shadow: none; }
     }
   </style>
 </head>
 <body>
+  <div id="progress"></div>
+  <div class="toast" id="toast"></div>
+
   <div class="layout">
+    <!-- SIDEBAR -->
     <nav>
-      <p class="brand">SRAM Analysis Hub</p>
-      <p class="sub">All Markdown analysis documents in one place</p>
-      <span class="count-pill">8 Documents</span>
-      <ul>
-        <li><a href="#doc-1-ai-adoption-outline">ai adoption/ai-adoption-outline.md</a></li><li><a href="#doc-2-analysis">analysis.md</a></li><li><a href="#doc-3-claude">CLAUDE.md</a></li><li><a href="#doc-4-competitorssram">competitors/competitors_sram.md</a></li><li><a href="#doc-5-ai-adoptionprompt">prompts/ai-adoption.prompt.md</a></li><li><a href="#doc-6-readme">README.md</a></li><li><a href="#doc-7-revenuestreamssram">revenue/revenue_streams_sram.md</a></li><li><a href="#doc-8-syllabus">syllabus.md</a></li>
-      </ul>
-    </nav>
-    <main>
-      <section class="hero">
-        <h1>Executive Analysis Workspace</h1>
-        <p>Unified view of competitive analysis, revenue streams, AI adoption strategy, and prompt artifacts. Use Print to export as PDF.</p>
-      </section>
-      <div class="toolbar">
-        <button class="secondary" onclick="window.scrollTo({top:0,behavior:'smooth'})">Top</button>
-        <button onclick="window.print()">Print / Save PDF</button>
+      <div class="nav-top">
+        <div class="nav-brand">SRAM <span>AI</span> Playbook</div>
+        <div class="nav-sub">Kellogg AIML/MORS 950 &mdash; Winter 2026</div>
+        <div class="nav-search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="navSearch" placeholder="Search documents..." autocomplete="off" />
+        </div>
       </div>
-      <section class="doc" id="doc-1-ai-adoption-outline"><h2 class="doc-title">ai adoption/ai-adoption-outline.md</h2><h1 id="doc-1-ai-adoption-outline-sram-ai-adoption-executive-outline">SRAM AI Adoption Executive Outline</h1>
+
+      <div class="nav-links" id="navLinks">
+        <a class="nav-link" href="#doc-1-ai-adoption-outline" data-folder="ai adoption"><span class="nav-label">ai adoption / ai-adoption-outline</span></a><a class="nav-link" href="#doc-2-analysis" data-folder="root"><span class="nav-label">analysis</span></a><a class="nav-link" href="#doc-3-claude" data-folder="root"><span class="nav-label">CLAUDE</span></a><a class="nav-link" href="#doc-4-competitorssram" data-folder="competitors"><span class="nav-label">competitors / competitors_sram</span></a><a class="nav-link" href="#doc-5-interview-writeup" data-folder="interview"><span class="nav-label">interview / interview-writeup</span></a><a class="nav-link" href="#doc-6-ai-adoptionprompt" data-folder="prompts"><span class="nav-label">prompts / ai-adoption.prompt</span></a><a class="nav-link" href="#doc-7-readme" data-folder="root"><span class="nav-label">README</span></a><a class="nav-link" href="#doc-8-revenuestreamssram" data-folder="revenue"><span class="nav-label">revenue / revenue_streams_sram</span></a><a class="nav-link" href="#doc-9-syllabus" data-folder="root"><span class="nav-label">syllabus</span></a>
+      </div>
+
+      <div class="nav-bottom">
+        <button class="btn-ghost" onclick="toggleTheme()">&#9680; Theme</button>
+        <button class="btn-ghost" onclick="expandAll()">&#9633; Expand all</button>
+        <button class="btn-ghost" onclick="window.print()">&#8599; Print</button>
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+    <main>
+      <!-- HERO -->
+      <div class="hero">
+        <div class="hero-row">
+          <div>
+            <h1>Executive Analysis Workspace</h1>
+            <p class="hero-sub">SRAM LLC &mdash; AI Adoption Playbook &mdash; 9 documents</p>
+          </div>
+          <div class="hero-actions">
+            <a class="btn btn-outline" href="interview/interview.html">Interview &rarr;</a>
+            <button class="btn btn-primary" onclick="window.print()">Export PDF</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- METRICS -->
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-value">$10.2M</div>
+          <div class="metric-label">Year-1 Net Value</div>
+          <div class="metric-sub">Expected case</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">3.8x</div>
+          <div class="metric-label">Return on Spend</div>
+          <div class="metric-sub">Year 1</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">90d</div>
+          <div class="metric-label">Pilot Timeline</div>
+          <div class="metric-sub">AXS + Hammerhead</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value">9</div>
+          <div class="metric-label">Documents</div>
+          <div class="metric-sub">Analysis files</div>
+        </div>
+      </div>
+
+      <!-- FILTER CHIPS -->
+      <div class="filters" id="filters">
+        <button class="chip active" data-filter="all" onclick="filterDocs('all', this)">All</button>
+        <button class="chip" data-filter="root" onclick="filterDocs('root', this)">Overview</button>
+        <button class="chip" data-filter="ai adoption" onclick="filterDocs('ai adoption', this)">AI Adoption</button>
+        <button class="chip" data-filter="competitors" onclick="filterDocs('competitors', this)">Competitors</button>
+        <button class="chip" data-filter="revenue" onclick="filterDocs('revenue', this)">Revenue</button>
+        <button class="chip" data-filter="interview" onclick="filterDocs('interview', this)">Interview</button>
+      </div>
+
+      <!-- DOCUMENTS -->
+      <div id="docs">
+        <section class="doc fade-in" id="doc-1-ai-adoption-outline" data-folder="ai adoption"><div class="doc-header"><span class="doc-folder">ai adoption</span><h2 class="doc-title">Ai Adoption Outline</h2></div><div class="doc-body"><h1 id="doc-1-ai-adoption-outline-sram-ai-adoption-executive-outline">SRAM AI Adoption Executive Outline</h1>
 <p>Date: 2026-02-28</p>
 <p>Company: SRAM LLC (private)</p>
 <p>Prepared by Donovan Palmer</p>
@@ -218,14 +663,14 @@
 <li>Those connected interactions (setup, firmware updates, diagnostics, usage data) create practical data loops for better support and smarter recommendation workflows.</li>
 </ul>
 <h2 id="doc-1-ai-adoption-outline-2-target-processes-pain-points-tools-and-why-each-tool-fits">2) Target Processes, Pain Points, Tools, and Why Each Tool Fits</h2>
-<table><thead><tr><th>Priority</th><th>Business Process</th><th>Main Pain Point</th><th>AI Tool Stack</th><th>Why This Tool Is Right for the Job</th></tr></thead><tbody>
+<div class="table-wrap"><table><thead><tr><th>Priority</th><th>Business Process</th><th>Main Pain Point</th><th>AI Tool Stack</th><th>Why This Tool Is Right for the Job</th></tr></thead><tbody>
 <tr><td>1</td><td>Rider/dealer support, warranty handling, compatibility help</td><td>Teams spend too much time searching documents and repeating standard troubleshooting steps.</td><td><code>Zendesk AI</code> + <code>Azure AI Search</code> + <code>OpenAI via Responses API</code></td><td>Zendesk fits current ticket operations, Azure AI Search finds approved content quickly, and OpenAI turns retrieved content into clear response drafts.</td></tr>
 <tr><td>2</td><td>Demand forecasting and inventory allocation</td><td>Forecast misses lead to stockouts, rush shipping, and markdown losses.</td><td><code>Vertex AI Forecasting</code> or <code>Databricks</code></td><td>Strong for time-series forecasting and planner exception handling across multi-channel product portfolios.</td></tr>
 <tr><td>3</td><td>Bicycle manufacturer proposal and spec package creation</td><td>Proposal cycles are slow and manual, delaying response and lowering win rates.</td><td><code>Salesforce Einstein/Agentforce</code> + CPQ features</td><td>Fits existing quoting and package-configuration workflow, improving speed and consistency.</td></tr>
 <tr><td>4</td><td>Technical documentation and translation</td><td>Updates take too long to appear in manuals and localized content.</td><td><code>OpenAI</code> + <code>DeepL API</code> + workflow automation (<code>Atlassian</code>/<code>ServiceNow</code>)</td><td>Accelerates draft and translation cycle while preserving review and approval controls.</td></tr>
 <tr><td>5 (Phase 3 option)</td><td>Compatible next-part recommendations at journey end</td><td>Customers often finish purchase or service without clear guidance on the next compatible part.</td><td>Compatibility rules engine + recommendation model + <code>OpenAI</code> explanation layer</td><td>Rules protect fit accuracy, recommendation model lifts basket value, and explanation layer improves trust.</td></tr>
 <tr><td>6 (Phase 3 option)</td><td>Product development workflow support</td><td>Engineering teams need faster translation of field issues into product requirements and quicker test planning cycles.</td><td><code>OpenAI</code> + issue/telemetry analytics + test-workflow automation</td><td>Supports requirements mining, firmware test acceleration, and design-review preparation without jumping to full design automation. Not included in Year-1 financial totals.</td></tr>
-</tbody></table>
+</tbody></table></div>
 <h2 id="doc-1-ai-adoption-outline-3-year-1-cost-reduction-conservative-expected-upside">3) Year-1 Cost Reduction (Conservative / Expected / Upside)</h2>
 <ul>
 <li><strong>Support assistant savings:</strong> <strong>$0.5M / $1.6M / $4.3M</strong></li>
@@ -286,7 +731,7 @@
 <li>Approve this exact starting point: AXS + Hammerhead support workflows in dealer/support channels, with compatibility and firmware/update issues first.</li>
 <li>Assign one accountable business owner and cross-functional delivery team.</li>
 <li>Maintain sequencing discipline: bounded, well-defined problems first; broader transformation after measured proof.</li>
-</ul></section><section class="doc" id="doc-2-analysis"><h2 class="doc-title">analysis.md</h2><h1 id="doc-2-analysis-sram-competitive-intelligence">SRAM Competitive Intelligence</h1>
+</ul></div></section><section class="doc fade-in" id="doc-2-analysis" data-folder="root"><div class="doc-header"><span class="doc-folder">root</span><h2 class="doc-title">Analysis</h2></div><div class="doc-body"><h1 id="doc-2-analysis-sram-competitive-intelligence">SRAM Competitive Intelligence</h1>
 <p>Date: 2026-02-28</p>
 <p>Company: SRAM LLC (private)</p>
 <h2 id="doc-2-analysis-method-and-confidence-rules">Method And Confidence Rules</h2>
@@ -335,34 +780,34 @@
 <h2 id="doc-2-analysis-2-product-deep-dive">2) Product Deep-Dive</h2>
 <h3 id="doc-2-analysis-complete-product-catalog-practical-complete-view">Complete product catalog (practical &quot;complete&quot; view)</h3>
 <p><code>Confirmed</code>: SRAM&#x27;s catalog is best understood as a multi-brand platform:</p>
-<table><thead><tr><th>Portfolio Layer</th><th>Key Product Families</th><th>What It Does In Revenue Terms</th></tr></thead><tbody>
+<div class="table-wrap"><table><thead><tr><th>Portfolio Layer</th><th>Key Product Families</th><th>What It Does In Revenue Terms</th></tr></thead><tbody>
 <tr><td>SRAM core drivetrains/brakes</td><td>RED/Force/Rival/Apex AXS, XPLR, Eagle Transmission, chains/cassettes/brakes</td><td>High-ticket groupsets + recurring replacement parts</td></tr>
 <tr><td>RockShox</td><td>Forks, shocks, suspension systems</td><td>OE spec + service/rebuild cycle</td></tr>
 <tr><td>Zipp</td><td>Wheels/cockpit/aero components</td><td>Premium wheel and speed segment monetization</td></tr>
 <tr><td>Quarq and integrated power</td><td>Power meter crank and upgrade paths</td><td>Upsell and performance data monetization</td></tr>
 <tr><td>Hammerhead</td><td>Karoo hardware + companion app ecosystem</td><td>Connected hardware/software retention layer</td></tr>
 <tr><td>TIME + Ochain</td><td>Pedals and active spider integration</td><td>Adjacent performance categories and cross-sell</td></tr>
-</tbody></table>
+</tbody></table></div>
 <p>Sources: [S1], [S14], [S15], [S16], [S17], [S18], [S19]</p>
 <h3 id="doc-2-analysis-pricing-tiers-current-historical-changes">Pricing tiers (current + historical changes)</h3>
 <p><code>Confirmed</code>: SRAM drop-bar tier structure remains clearly stratified across RED -&gt; Force -&gt; Rival, with 2025 refreshes.</p>
-<table><thead><tr><th>Product</th><th>Current MSRP Signal</th><th>Historical/Comparative Signal</th></tr></thead><tbody>
+<div class="table-wrap"><table><thead><tr><th>Product</th><th>Current MSRP Signal</th><th>Historical/Comparative Signal</th></tr></thead><tbody>
 <tr><td>RED AXS HRD Shift-Brake (ED-RED-E1)</td><td>$745</td><td>Premium anchor tier ([S20])</td></tr>
 <tr><td>Force AXS HRD Shift-Brake (ED-FRC-E1)</td><td>$385</td><td>Mid-premium tier ([S21])</td></tr>
 <tr><td>Rival AXS HRD Shift-Brake (ED-RIV-E1)</td><td>$280</td><td>Mid tier ([S22])</td></tr>
 <tr><td>Rival eTap AXS HRD (ED-RIV-D1)</td><td>$285</td><td>Prior generation at slightly higher sticker ([S23])</td></tr>
 <tr><td>Force/Rival/Force XPLR/Rival XPLR 2025 lines</td><td>Released June 17, 2025</td><td>Broad refresh cadence across road/gravel ([S14], [S15], [S17], [S18])</td></tr>
-</tbody></table>
+</tbody></table></div>
 <ul>
 <li><code>Inference</code>: SRAM used 2025 upgrades to increase functional value (ergonomics/braking/integration) while maintaining a coherent price ladder.</li>
 </ul>
 <h3 id="doc-2-analysis-feature-comparison-vs-top-3-alternatives">Feature comparison vs top 3 alternatives</h3>
 <p><code>Confirmed</code> and <code>Inference</code> (based on current manufacturer pages):</p>
-<table><thead><tr><th>Competitor</th><th>Feature Position vs SRAM</th><th>Pricing/Position Signal</th><th>Implication</th></tr></thead><tbody>
+<div class="table-wrap"><table><thead><tr><th>Competitor</th><th>Feature Position vs SRAM</th><th>Pricing/Position Signal</th><th>Implication</th></tr></thead><tbody>
 <tr><td>Shimano (GRX RX827)</td><td>Entered fully wireless drop-bar gravel with robustness messaging</td><td>Premium ecosystem, strong OE/dealer depth</td><td>SRAM&#x27;s early wireless lead is narrowing in gravel ([S30])</td></tr>
 <tr><td>Campagnolo (Super Record 13)</td><td>13-speed premium wireless + new ergonomics; explicit premium pricing</td><td>EUR 4,300 base listed on official page</td><td>Campagnolo presses high-end prestige segment ([S31])</td></tr>
 <tr><td>microSHIFT (Sword)</td><td>Mechanical serviceable gravel-first alternative, explicit anti-complexity narrative</td><td>Value-access narrative vs electronic premium</td><td>Downmarket pressure against premium electronic upsell ([S32])</td></tr>
-</tbody></table>
+</tbody></table></div>
 <h3 id="doc-2-analysis-technology-stack-job-postings-tech-signals-builtwith">Technology stack (job postings, tech signals, BuiltWith)</h3>
 <ul>
 <li><code>Confirmed</code> (secondary): SRAM software postings reference product strategy and cross-functional roadmapping for connected cycling software. ([S10])</li>
@@ -508,66 +953,66 @@
 <h2 id="doc-2-analysis-appendix-source-list-recent">Appendix: Source List (Recent)</h2>
 <h3 id="doc-2-analysis-primary-official">Primary / Official</h3>
 <ul>
-<li><a href="https://www.sram.com/en/company">S1</a> SRAM Company page.</li>
-<li><a href="https://www.sram.com/de/company/about/history">S2</a> SRAM History page.</li>
-<li><a href="https://support.sram.com/hc/en-us/articles/38592883797275-Is-the-Ochain-team-part-of-SRAM">S4</a> SRAM support: Ochain team part of SRAM.</li>
-<li><a href="https://www.sram.com/en/company/about/leadership">S5</a> SRAM leadership page.</li>
-<li><a href="https://www.sram.com/en/company/about/locations">S13</a> SRAM locations page.</li>
-<li><a href="https://support.sram.com/hc/en-us/articles/36351108594331-What-parts-are-available-with-the-Force-AXS-product-line-When-will-they-be-available">S14</a> Force AXS availability (June 17, 2025).</li>
-<li><a href="https://support.sram.com/hc/en-us/articles/36350045647515-What-parts-are-available-with-the-Rival-AXS-product-line-When-will-they-be-available">S15</a> Rival AXS availability (June 17, 2025).</li>
-<li><a href="https://support.sram.com/hc/en-us/sections/36347235901339-Force-AXS">S16</a> Force AXS section (feature claims).</li>
-<li><a href="https://support.sram.com/hc/en-us/articles/36350528178331-What-parts-are-available-with-the-Force-XPLR-AXS-product-line-When-will-they-be-available">S17</a> Force XPLR AXS availability.</li>
-<li><a href="https://support.sram.com/hc/en-us/articles/36348635440155-What-parts-are-available-with-the-Rival-XPLR-AXS-product-line-When-will-they-be-available">S18</a> Rival XPLR AXS availability.</li>
-<li><a href="https://support.sram.com/hc/en-us/sections/34697009844379-Eagle-90-and-Eagle-70">S19</a> Eagle 90/70 support section.</li>
-<li><a href="https://www.sram.com/en/sram/models/ed-red-e1">S20</a> RED AXS HRD product page.</li>
-<li><a href="https://www.sram.com/en/sram/models/ed-frc-e1">S21</a> Force AXS HRD product page.</li>
-<li><a href="https://www.sram.com/en/sram/models/ed-riv-e1">S22</a> Rival AXS HRD product page.</li>
-<li><a href="https://www.sram.com/en/sram/models/ed-riv-d1">S23</a> Rival eTap AXS HRD D1 product page.</li>
-<li><a href="https://www.sram.com/en/gravel-world-championships">S24</a> SRAM Gravel World Championships activation page.</li>
-<li><a href="https://www.sram.com/en/life/stories/2025-sram-community-partners">S25</a> 2025 SRAM Community Partners.</li>
-<li><a href="https://www.sram.com/en/life/stories/rampage-2025">S26</a> 2025 Red Bull Rampage story.</li>
-<li><a href="https://www.hammerhead.io/blogs/change-logs/karoo-software-build-version-1-552-1943">S35</a> Hammerhead change log (1.552.1943).</li>
-<li><a href="https://www.hammerhead.io/blogs/change-logs/karoo-software-build-version-1-568-1980">S36</a> Hammerhead change log (1.568.1980).</li>
-<li><a href="https://support.hammerhead.io/hc/en-us/articles/31650358038683-How-do-I-purchase-and-download-SRAM-s-AXS-API-Developer-License">S37</a> AXS API developer license support article.</li>
-<li><a href="https://support.hammerhead.io/hc/en-us/community/topics/1260801320630-Feature-Requests">S38</a> Hammerhead feature request forum.</li>
-<li><a href="https://support.hammerhead.io/hc/en-us/articles/33898497183515-How-do-I-find-Routes-by-surface-type-in-Hammerhead-Dashboard">S39</a> Hammerhead routes by surface type article.</li>
-<li><a href="https://www.sram.com/en/support">S42</a> SRAM support hub.</li>
-<li><a href="https://support.sram.com/hc/en-us/articles/26579043864603-What-is-AXS">S43</a> SRAM support: What is AXS.</li>
-<li><a href="https://support.hammerhead.io/hc/en-us/articles/360053786033-Routes-and-Rides-Sync">S45</a> Hammerhead routes/rides sync integrations.</li>
-<li><a href="https://apps.apple.com/us/app/hammerhead-companion/id6476576279">S46</a> Hammerhead Companion App Store listing.</li>
-<li><a href="https://apps.apple.com/it/app/sram-axs/id1430049231">S57</a> SRAM AXS app listing.</li>
-<li><a href="https://apps.apple.com/fr/app/hammerhead-companion/id6476576279">S58</a> Hammerhead companion app listing (rating snapshot).</li>
+<li><a href="https://www.sram.com/en/company" target="_blank">S1</a> SRAM Company page.</li>
+<li><a href="https://www.sram.com/de/company/about/history" target="_blank">S2</a> SRAM History page.</li>
+<li><a href="https://support.sram.com/hc/en-us/articles/38592883797275-Is-the-Ochain-team-part-of-SRAM" target="_blank">S4</a> SRAM support: Ochain team part of SRAM.</li>
+<li><a href="https://www.sram.com/en/company/about/leadership" target="_blank">S5</a> SRAM leadership page.</li>
+<li><a href="https://www.sram.com/en/company/about/locations" target="_blank">S13</a> SRAM locations page.</li>
+<li><a href="https://support.sram.com/hc/en-us/articles/36351108594331-What-parts-are-available-with-the-Force-AXS-product-line-When-will-they-be-available" target="_blank">S14</a> Force AXS availability (June 17, 2025).</li>
+<li><a href="https://support.sram.com/hc/en-us/articles/36350045647515-What-parts-are-available-with-the-Rival-AXS-product-line-When-will-they-be-available" target="_blank">S15</a> Rival AXS availability (June 17, 2025).</li>
+<li><a href="https://support.sram.com/hc/en-us/sections/36347235901339-Force-AXS" target="_blank">S16</a> Force AXS section (feature claims).</li>
+<li><a href="https://support.sram.com/hc/en-us/articles/36350528178331-What-parts-are-available-with-the-Force-XPLR-AXS-product-line-When-will-they-be-available" target="_blank">S17</a> Force XPLR AXS availability.</li>
+<li><a href="https://support.sram.com/hc/en-us/articles/36348635440155-What-parts-are-available-with-the-Rival-XPLR-AXS-product-line-When-will-they-be-available" target="_blank">S18</a> Rival XPLR AXS availability.</li>
+<li><a href="https://support.sram.com/hc/en-us/sections/34697009844379-Eagle-90-and-Eagle-70" target="_blank">S19</a> Eagle 90/70 support section.</li>
+<li><a href="https://www.sram.com/en/sram/models/ed-red-e1" target="_blank">S20</a> RED AXS HRD product page.</li>
+<li><a href="https://www.sram.com/en/sram/models/ed-frc-e1" target="_blank">S21</a> Force AXS HRD product page.</li>
+<li><a href="https://www.sram.com/en/sram/models/ed-riv-e1" target="_blank">S22</a> Rival AXS HRD product page.</li>
+<li><a href="https://www.sram.com/en/sram/models/ed-riv-d1" target="_blank">S23</a> Rival eTap AXS HRD D1 product page.</li>
+<li><a href="https://www.sram.com/en/gravel-world-championships" target="_blank">S24</a> SRAM Gravel World Championships activation page.</li>
+<li><a href="https://www.sram.com/en/life/stories/2025-sram-community-partners" target="_blank">S25</a> 2025 SRAM Community Partners.</li>
+<li><a href="https://www.sram.com/en/life/stories/rampage-2025" target="_blank">S26</a> 2025 Red Bull Rampage story.</li>
+<li><a href="https://www.hammerhead.io/blogs/change-logs/karoo-software-build-version-1-552-1943" target="_blank">S35</a> Hammerhead change log (1.552.1943).</li>
+<li><a href="https://www.hammerhead.io/blogs/change-logs/karoo-software-build-version-1-568-1980" target="_blank">S36</a> Hammerhead change log (1.568.1980).</li>
+<li><a href="https://support.hammerhead.io/hc/en-us/articles/31650358038683-How-do-I-purchase-and-download-SRAM-s-AXS-API-Developer-License" target="_blank">S37</a> AXS API developer license support article.</li>
+<li><a href="https://support.hammerhead.io/hc/en-us/community/topics/1260801320630-Feature-Requests" target="_blank">S38</a> Hammerhead feature request forum.</li>
+<li><a href="https://support.hammerhead.io/hc/en-us/articles/33898497183515-How-do-I-find-Routes-by-surface-type-in-Hammerhead-Dashboard" target="_blank">S39</a> Hammerhead routes by surface type article.</li>
+<li><a href="https://www.sram.com/en/support" target="_blank">S42</a> SRAM support hub.</li>
+<li><a href="https://support.sram.com/hc/en-us/articles/26579043864603-What-is-AXS" target="_blank">S43</a> SRAM support: What is AXS.</li>
+<li><a href="https://support.hammerhead.io/hc/en-us/articles/360053786033-Routes-and-Rides-Sync" target="_blank">S45</a> Hammerhead routes/rides sync integrations.</li>
+<li><a href="https://apps.apple.com/us/app/hammerhead-companion/id6476576279" target="_blank">S46</a> Hammerhead Companion App Store listing.</li>
+<li><a href="https://apps.apple.com/it/app/sram-axs/id1430049231" target="_blank">S57</a> SRAM AXS app listing.</li>
+<li><a href="https://apps.apple.com/fr/app/hammerhead-companion/id6476576279" target="_blank">S58</a> Hammerhead companion app listing (rating snapshot).</li>
 </ul>
 <h3 id="doc-2-analysis-secondary-corroboration">Secondary / Corroboration</h3>
 <ul>
-<li><a href="https://theorg.com/org/sram/org-chart/ken-lousberg">S6</a> The Org: Ken Lousberg profile.</li>
-<li><a href="https://www.theofficialboard.com/biography/heather-bridges-dg507">S7</a> Official Board: Heather Bridges bio.</li>
-<li><a href="https://www.linkedin.com/company/sram-corporation/">S8</a> LinkedIn company profile.</li>
-<li><a href="https://leadiq.com/c/sram/5a1d85e024000024006041a3">S9</a> LeadIQ company profile (estimated financial band).</li>
-<li><a href="https://www.builtinchicago.org/job/software-product-manager/6182601">S10</a> Built In: Software Product Manager.</li>
-<li><a href="https://www.builtinchicago.org/job/test-automation-engineer/6666122">S11</a> Built In: Test Automation Engineer.</li>
-<li><a href="https://builtin.com/job/senior-software-engineer/3837970">S12</a> Built In: Senior Software Engineer.</li>
-<li><a href="https://www.bicycleretailer.com/industry-news/2025/07/07/sram-acquires-spider-brand-ochain">S27</a> BRAIN: SRAM acquires Ochain.</li>
-<li><a href="https://www.bicycleretailer.com/industry-news/2025/09/05/sram-open-new-italian-facility-next-year">S28</a> BRAIN: SRAM to open new Italian facility.</li>
-<li><a href="https://www.bicycleretailer.com/international/2025/11/05/sram-expands-distribution-eastern-europe-aspire-sports">S29</a> BRAIN: Eastern Europe distribution expansion.</li>
-<li><a href="https://bike.shimano.com/en-US/product/service-upgradeparts/105-r7000/WP-Y1WV98040.html">S30</a> Shimano site referencing GRX RX827 fully wireless drop-bar segment.</li>
-<li><a href="https://www.campagnolo.com/li-en/super-record-13/">S31</a> Campagnolo Super Record 13 page.</li>
-<li><a href="https://www.microshift.com/products/groups/sword/">S32</a> microSHIFT Sword page.</li>
-<li><a href="https://www.sistrix.com/ask-sistrix/technical-seo/website-technologies/which-technologies-does-a-website-use">S33</a> Sistrix article citing BuiltWith tech detection.</li>
-<li><a href="https://uspto.report/TM/99054156">S40</a> USPTO report entry: PARAGON (SRAM LLC).</li>
-<li><a href="https://uspto.report/TM/99054995/EB420250604015317/">S41</a> USPTO report notification: SIDLUXE (SRAM LLC).</li>
-<li><a href="https://builtin.com/job/content-specialist-zipp/7099196">S44</a> Built In: Content Specialist, Zipp.</li>
-<li><a href="https://www.bicycleretailer.com/announcements/2025/10/16/nbda-announces-transformative-2026-event-lineup">S47</a> NBDA/CABDA event with SRAM HQ sessions.</li>
-<li><a href="https://www.trustpilot.com/review/www.sram.com">S48</a> Trustpilot SRAM reviews.</li>
-<li><a href="https://www.trustpilot.com/review/hammerhead.io">S49</a> Trustpilot Hammerhead reviews.</li>
-<li><a href="https://www.reddit.com/r/cycling/comments/1gaqtt6">S50</a> Reddit: SRAM AXS app issue.</li>
-<li><a href="https://www.reddit.com/r/sram/comments/1lesycb">S51</a> Reddit: Rival shifting issue thread.</li>
-<li><a href="https://www.reddit.com/r/sram/comments/1jc2sjl">S52</a> Reddit: sequential shifting issue.</li>
-<li><a href="https://www.reddit.com/r/sram/comments/1ma19km">S53</a> Reddit: derailleur bushing/pivot wear discussion.</li>
-<li><a href="https://www.glassdoor.com/Reviews/SRAM-Reviews-E14880.htm">S54</a> Glassdoor SRAM review aggregate.</li>
-<li><a href="https://www.glassdoor.com/Reviews/Employee-Review-SRAM-E14880-RVW102439081.htm">S55</a> Glassdoor recent employee review snapshot.</li>
-<li><a href="https://www.cyclingnews.com/news/its-implementation-has-already-caused-tangible-harm-sram-launches-legal-challenge-against-uci-gear-restrictions/">S56</a> CyclingNews on SRAM&#x27;s UCI challenge.</li>
-</ul></section><section class="doc" id="doc-3-claude"><h2 class="doc-title">CLAUDE.md</h2><h1 id="doc-3-claude-claudemd">CLAUDE.md</h1>
+<li><a href="https://theorg.com/org/sram/org-chart/ken-lousberg" target="_blank">S6</a> The Org: Ken Lousberg profile.</li>
+<li><a href="https://www.theofficialboard.com/biography/heather-bridges-dg507" target="_blank">S7</a> Official Board: Heather Bridges bio.</li>
+<li><a href="https://www.linkedin.com/company/sram-corporation/" target="_blank">S8</a> LinkedIn company profile.</li>
+<li><a href="https://leadiq.com/c/sram/5a1d85e024000024006041a3" target="_blank">S9</a> LeadIQ company profile (estimated financial band).</li>
+<li><a href="https://www.builtinchicago.org/job/software-product-manager/6182601" target="_blank">S10</a> Built In: Software Product Manager.</li>
+<li><a href="https://www.builtinchicago.org/job/test-automation-engineer/6666122" target="_blank">S11</a> Built In: Test Automation Engineer.</li>
+<li><a href="https://builtin.com/job/senior-software-engineer/3837970" target="_blank">S12</a> Built In: Senior Software Engineer.</li>
+<li><a href="https://www.bicycleretailer.com/industry-news/2025/07/07/sram-acquires-spider-brand-ochain" target="_blank">S27</a> BRAIN: SRAM acquires Ochain.</li>
+<li><a href="https://www.bicycleretailer.com/industry-news/2025/09/05/sram-open-new-italian-facility-next-year" target="_blank">S28</a> BRAIN: SRAM to open new Italian facility.</li>
+<li><a href="https://www.bicycleretailer.com/international/2025/11/05/sram-expands-distribution-eastern-europe-aspire-sports" target="_blank">S29</a> BRAIN: Eastern Europe distribution expansion.</li>
+<li><a href="https://bike.shimano.com/en-US/product/service-upgradeparts/105-r7000/WP-Y1WV98040.html" target="_blank">S30</a> Shimano site referencing GRX RX827 fully wireless drop-bar segment.</li>
+<li><a href="https://www.campagnolo.com/li-en/super-record-13/" target="_blank">S31</a> Campagnolo Super Record 13 page.</li>
+<li><a href="https://www.microshift.com/products/groups/sword/" target="_blank">S32</a> microSHIFT Sword page.</li>
+<li><a href="https://www.sistrix.com/ask-sistrix/technical-seo/website-technologies/which-technologies-does-a-website-use" target="_blank">S33</a> Sistrix article citing BuiltWith tech detection.</li>
+<li><a href="https://uspto.report/TM/99054156" target="_blank">S40</a> USPTO report entry: PARAGON (SRAM LLC).</li>
+<li><a href="https://uspto.report/TM/99054995/EB420250604015317/" target="_blank">S41</a> USPTO report notification: SIDLUXE (SRAM LLC).</li>
+<li><a href="https://builtin.com/job/content-specialist-zipp/7099196" target="_blank">S44</a> Built In: Content Specialist, Zipp.</li>
+<li><a href="https://www.bicycleretailer.com/announcements/2025/10/16/nbda-announces-transformative-2026-event-lineup" target="_blank">S47</a> NBDA/CABDA event with SRAM HQ sessions.</li>
+<li><a href="https://www.trustpilot.com/review/www.sram.com" target="_blank">S48</a> Trustpilot SRAM reviews.</li>
+<li><a href="https://www.trustpilot.com/review/hammerhead.io" target="_blank">S49</a> Trustpilot Hammerhead reviews.</li>
+<li><a href="https://www.reddit.com/r/cycling/comments/1gaqtt6" target="_blank">S50</a> Reddit: SRAM AXS app issue.</li>
+<li><a href="https://www.reddit.com/r/sram/comments/1lesycb" target="_blank">S51</a> Reddit: Rival shifting issue thread.</li>
+<li><a href="https://www.reddit.com/r/sram/comments/1jc2sjl" target="_blank">S52</a> Reddit: sequential shifting issue.</li>
+<li><a href="https://www.reddit.com/r/sram/comments/1ma19km" target="_blank">S53</a> Reddit: derailleur bushing/pivot wear discussion.</li>
+<li><a href="https://www.glassdoor.com/Reviews/SRAM-Reviews-E14880.htm" target="_blank">S54</a> Glassdoor SRAM review aggregate.</li>
+<li><a href="https://www.glassdoor.com/Reviews/Employee-Review-SRAM-E14880-RVW102439081.htm" target="_blank">S55</a> Glassdoor recent employee review snapshot.</li>
+<li><a href="https://www.cyclingnews.com/news/its-implementation-has-already-caused-tangible-harm-sram-launches-legal-challenge-against-uci-gear-restrictions/" target="_blank">S56</a> CyclingNews on SRAM&#x27;s UCI challenge.</li>
+</ul></div></section><section class="doc fade-in" id="doc-3-claude" data-folder="root"><div class="doc-header"><span class="doc-folder">root</span><h2 class="doc-title">Claude</h2></div><div class="doc-body"><h1 id="doc-3-claude-claudemd">CLAUDE.md</h1>
 <p>This file provides guidance to AI agents working in this repository.</p>
 <h2 id="doc-3-claude-what-this-repository-is">What This Repository Is</h2>
 <p>Group project workspace for AIML/MORS 950 &quot;Human and Machine Intelligence&quot; at Northwestern (Kellogg), Winter 2026. The goal is a C-suite-ready AI Adoption Playbook for SRAM LLC (6-8 pages).</p>
@@ -614,7 +1059,8 @@ python3 tools/build_analysis_hub.py
 <li>Open a PR before merging into main.</li>
 <li>Small, incremental commits. One logical change per commit.</li>
 <li>All commits attributed to the committing team member only. No Co-Authored-By lines.</li>
-</ul></section><section class="doc" id="doc-4-competitorssram"><h2 class="doc-title">competitors/competitors_sram.md</h2><h1 id="doc-4-competitorssram-sram-competitor-map">SRAM Competitor Map</h1>
+<li>After a PR is merged, delete the remote feature branch to keep the repo clean.</li>
+</ul></div></section><section class="doc fade-in" id="doc-4-competitorssram" data-folder="competitors"><div class="doc-header"><span class="doc-folder">competitors</span><h2 class="doc-title">Competitors Sram</h2></div><div class="doc-body"><h1 id="doc-4-competitorssram-sram-competitor-map">SRAM Competitor Map</h1>
 <p>Date: 2026-02-22</p>
 <p>Company: SRAM LLC (private)</p>
 <h2 id="doc-4-competitorssram-overview">Overview</h2>
@@ -667,11 +1113,46 @@ python3 tools/build_analysis_hub.py
 <p>SRAM&#x27;s advantage is not just single products; it is the ability to bundle and integrate across brands (SRAM, RockShox, Zipp, Quarq, Hammerhead, TIME, Ochain). Competitors can be stronger in one category but weaker across the full performance-cycling stack.</p>
 <h2 id="doc-4-competitorssram-source-base-used">Source Base Used</h2>
 <ul>
-<li><a href="https://www.sram.com/en/company">SRAM Company page</a></li>
-<li><a href="https://www.sram.com/en/sram/road/collections/etap-axs/collection">SRAM product/category navigation and collections</a></li>
-<li><a href="https://www.sram.com/en/sram/mountain/collections/eagle-transmission">SRAM Eagle Transmission collection</a></li>
-<li><a href="https://www.sram.com/en/support">SRAM support ecosystem pages</a></li>
-</ul></section><section class="doc" id="doc-5-ai-adoptionprompt"><h2 class="doc-title">prompts/ai-adoption.prompt.md</h2><p><strong>PROMPT:</strong></p>
+<li><a href="https://www.sram.com/en/company" target="_blank">SRAM Company page</a></li>
+<li><a href="https://www.sram.com/en/sram/road/collections/etap-axs/collection" target="_blank">SRAM product/category navigation and collections</a></li>
+<li><a href="https://www.sram.com/en/sram/mountain/collections/eagle-transmission" target="_blank">SRAM Eagle Transmission collection</a></li>
+<li><a href="https://www.sram.com/en/support" target="_blank">SRAM support ecosystem pages</a></li>
+</ul></div></section><section class="doc fade-in" id="doc-5-interview-writeup" data-folder="interview"><div class="doc-header"><span class="doc-folder">interview</span><h2 class="doc-title">Interview Writeup</h2></div><div class="doc-body"><h1 id="doc-5-interview-writeup-sram-interview-write-up">SRAM Interview Write-Up</h1>
+<p>Donovan Palmer, Ed [Last Name], Will [Last Name] | AIML/MORS 950 | Week 4 | 4 Mar 2026</p>
+<p>Interviewee: Jordan Hartsell, VP of Digital Products and Innovation, SRAM LLC</p>
+<p>Format: 45-minute Zoom call</p>
+<p>Interviewer team: Donovan Palmer, Ed [Last Name], Will [Last Name]</p>
+<hr>
+<h2 id="doc-5-interview-writeup-background">Background</h2>
+<p>Jordan Hartsell oversees SRAM&#x27;s digital product organization, including the AXS wireless ecosystem, the Hammerhead cycling computer platform, and internal tooling that connects support, dealer operations, and manufacturing workflows. Hartsell joined SRAM from a tier-1 automotive supplier where he led a similar connected-product digitization effort. He has been at SRAM for four years.</p>
+<p>We reached out to Hartsell through a LinkedIn introduction from a mutual contact at Northwestern. He agreed to a 45-minute conversation focused on how SRAM thinks about technology adoption and where AI fits into that picture.</p>
+<hr>
+<h2 id="doc-5-interview-writeup-key-questions-and-responses">Key Questions and Responses</h2>
+<p><strong>Donovan: What does SRAM&#x27;s data infrastructure look like today, and how ready is it for AI-driven workflows?</strong></p>
+<p>Hartsell was direct. &quot;We have good data in pockets and messy data everywhere else.&quot; The AXS and Hammerhead platforms generate structured, real-time usage data — firmware update logs, connectivity events, ride metrics, diagnostic flags. That data is clean and increasingly well-organized. The problem is everything adjacent to it. Dealer support tickets live in one system. Warranty claims live in another. Compatibility documentation is maintained manually across product lines and updated on a release cadence that does not always keep pace with the actual hardware. &quot;If I wanted to build a support AI today, I could get it to work well for AXS and Hammerhead,&quot; he said. &quot;The moment a dealer asks about a RockShox fork on a 2019 frame with a third-party brake, I start to sweat.&quot;</p>
+<p>He said SRAM has been investing in data consolidation for 18 months, with the explicit goal of making it AI-ready. The priority has been support and compatibility data first, demand forecasting second. He estimated they are 60 to 70 percent of the way to a state where a bounded support assistant could be deployed responsibly.</p>
+<p><strong>Ed: Where do you see the most internal resistance to AI adoption, and how do you navigate it?</strong></p>
+<p>Hartsell said the resistance is not where most people expect it. &quot;It is not the engineers. Engineers love this stuff. The resistance comes from customer-facing teams — support leads, dealer account managers — because they worry AI will produce confident-sounding wrong answers that damage dealer relationships they have spent years building.&quot; He described a pilot where an AI tool gave a compatibility recommendation that was technically correct per the documentation but wrong for a specific frame geometry that an experienced support agent would have flagged. The recommendation did not cause a product failure, but it eroded trust in the pilot internally. &quot;That one incident cost me three months of buy-in.&quot;</p>
+<p>His approach has been to frame AI as a drafting tool, not a decision-maker. Every AI output goes through a human before it reaches a dealer or a rider. &quot;The first question I ask anyone skeptical about AI is: do you want to spend your day searching a 200-page compatibility PDF, or do you want to spend it talking to dealers? The AI does the search. You make the call.&quot; He said that framing has been more effective than ROI decks.</p>
+<p><strong>Will: How does SRAM think about AI relative to competitors like Shimano and SRAM&#x27;s own acquired brands?</strong></p>
+<p>Hartsell was careful here but candid. He said Shimano&#x27;s scale gives them a different AI posture — more data, more dedicated investment, and a longer runway to absorb mistakes. &quot;Shimano has the luxury of getting it wrong a few times. We do not.&quot; He sees SRAM&#x27;s advantage in its connected product stack. Hammerhead and AXS together give SRAM a richer real-time data relationship with riders than Shimano has with most of its customers. &quot;A Shimano rider uses the app to check compatibility. A Hammerhead rider uses it to train, navigate, and communicate with their component stack. That is a fundamentally different data relationship.&quot; He believes that if SRAM moves quickly on support and recommendations AI in the next 12 to 18 months, it closes the scale gap with Shimano in the domains that matter most for rider and dealer loyalty.</p>
+<p>On acquired brands: he said integrating Quarq and Hammerhead data has been the biggest unlock so far. Ochain is too recent to have useful data yet. TIME pedals remain largely analog in terms of data capture. He did not mention near-term AI plans for those brands.</p>
+<p><strong>Donovan: What would a successful AI deployment look like in year one, and what would make you pull the plug?</strong></p>
+<p>Success in year one, per Hartsell, is narrow and boring. &quot;I want one workflow measurably faster, measurably more accurate, with no regression in dealer satisfaction scores.&quot; He specifically named the AXS drivetrain support queue as the target. His internal definition of success is a 30 percent reduction in average handle time on AXS support tickets with dealer satisfaction scores holding flat or improving.</p>
+<p>The pull-the-plug criteria he cited: two consecutive weeks of quality degradation, any warranty or safety-adjacent error that reaches a dealer without human review, or dealer opt-out rate above 15 percent in the pilot cohort. &quot;I would rather shut it down and restart than defend a mistake to Ken [Lousberg].&quot;</p>
+<hr>
+<h2 id="doc-5-interview-writeup-synthesis-and-implications">Synthesis and Implications</h2>
+<p>Three things from this conversation directly shaped our diagnosis.</p>
+<p>First, SRAM&#x27;s data readiness is real but bounded. The AXS and Hammerhead stack is AI-ready now. The broader catalog is not. Any year-one AI recommendation must start inside that ready perimeter and expand only after the data consolidation work matures. This validates our recommendation to pilot on AXS and Hammerhead support first.</p>
+<p>Second, the adoption barrier is not technical — it is trust. The failed pilot Hartsell described created more internal skepticism than any cost or complexity argument would have. The implication for our playbook is that the rollout design matters as much as the tool selection. Human-in-the-loop is not a concession to skeptics; it is the thing that keeps the pilot alive long enough to prove value.</p>
+<p>Third, Hammerhead is SRAM&#x27;s real AI moat. The connected rider data relationship that Hammerhead enables is a structural advantage over Shimano that SRAM is not fully exploiting yet. Our playbook should call this out explicitly as the long-term differentiation lever, not just a near-term support tool.</p>
+<hr>
+<h2 id="doc-5-interview-writeup-open-questions-for-the-playbook">Open Questions for the Playbook</h2>
+<ul>
+<li>What is the current state of SRAM&#x27;s dealer satisfaction tracking, and is it consistent enough to serve as a reliable AI pilot baseline?</li>
+<li>How does SRAM plan to handle compatibility AI for legacy products where documentation is incomplete or inconsistent?</li>
+<li>Is there an executive sponsor above Hartsell who has formally committed to the AI data consolidation roadmap, or is this still a digital-team initiative without C-suite ownership?</li>
+</ul></div></section><section class="doc fade-in" id="doc-6-ai-adoptionprompt" data-folder="prompts"><div class="doc-header"><span class="doc-folder">prompts</span><h2 class="doc-title">Ai Adoption.Prompt</h2></div><div class="doc-body"><p><strong>PROMPT:</strong></p>
 <p>You are a strategic business consultant. Create a <strong>1-page executive outline</strong> for SRAM LLC on how the company is positioned for AI adoption, with a clear focus on:</p>
 <ul>
 <li>lowering cost,</li>
@@ -679,7 +1160,7 @@ python3 tools/build_analysis_hub.py
 <li>creating new revenue opportunities.</li>
 </ul>
 <p>Use <strong>plain language only</strong>. Avoid technical jargon unless briefly explained in simple terms.</p>
-<h2 id="doc-5-ai-adoptionprompt-output-goal">Output Goal</h2>
+<h2 id="doc-6-ai-adoptionprompt-output-goal">Output Goal</h2>
 <p>Write this as if it is going to SRAM&#x27;s CEO. Make it direct, practical, and decision-oriented.</p>
 <p>The output must support two uses:</p>
 <ul>
@@ -688,7 +1169,7 @@ python3 tools/build_analysis_hub.py
 </ul>
 <p>Do not use <code>[FACT]</code> or <code>[ASSUMPTION]</code> labels.</p>
 <p>Do not reference <code>analysis.md</code>.</p>
-<h2 id="doc-5-ai-adoptionprompt-required-structure">Required Structure</h2>
+<h2 id="doc-6-ai-adoptionprompt-required-structure">Required Structure</h2>
 <p>Use the exact section flow below:</p>
 <p>1. <strong>Where SRAM Stands Today</strong></p>
 <ul>
@@ -755,7 +1236,7 @@ python3 tools/build_analysis_hub.py
 <li>Clear decision bullets on what to approve now.</li>
 <li>Re-state the sequencing rule: bounded, well-defined first; big-system overhaul later.</li>
 </ul>
-<h2 id="doc-5-ai-adoptionprompt-website-rendering-requirements">Website Rendering Requirements</h2>
+<h2 id="doc-6-ai-adoptionprompt-website-rendering-requirements">Website Rendering Requirements</h2>
 <ul>
 <li>The website version must preserve all Markdown content (no dropped sections, no omitted bullets).</li>
 <li>Use a consistent card-and-grid information architecture:</li>
@@ -766,7 +1247,7 @@ python3 tools/build_analysis_hub.py
 <li>Keep print behavior visually consistent with the web layout (avoid radically different print-only rearrangements).</li>
 <li>Ensure the design remains readable and professional on desktop and mobile.</li>
 </ul>
-<h2 id="doc-5-ai-adoptionprompt-style-rules">Style Rules</h2>
+<h2 id="doc-6-ai-adoptionprompt-style-rules">Style Rules</h2>
 <ul>
 <li>Keep it to one page.</li>
 <li>Use plain business language.</li>
@@ -781,7 +1262,7 @@ python3 tools/build_analysis_hub.py
 <li>Say &quot;win more bicycle manufacturer opportunities through faster proposals&quot; instead of &quot;OEM proposal cycle win lift&quot;.</li>
 <li>Do not use unexplained abbreviations such as <code>L/B/H</code>, <code>AHT</code>, <code>MAPE</code>, or <code>fill-rate</code>.</li>
 </ul>
-<h2 id="doc-5-ai-adoptionprompt-context-to-use">Context to Use</h2>
+<h2 id="doc-6-ai-adoptionprompt-context-to-use">Context to Use</h2>
 <p>SRAM LLC is a private company in performance cycling components and connected cycling technology (drivetrains/brakes, RockShox suspension, Zipp wheels/cockpit, Quarq power meters, Hammerhead cycling computers, TIME pedals).</p>
 <p>Known process areas to consider:</p>
 <ul>
@@ -791,33 +1272,33 @@ python3 tools/build_analysis_hub.py
 <li>firmware/app support for AXS/Hammerhead</li>
 <li>compatibility and content management</li>
 <li>multi-brand selling across SRAM/RockShox/Zipp/Quarq/Hammerhead/TIME</li>
-</ul></section><section class="doc" id="doc-6-readme"><h2 class="doc-title">README.md</h2><h1 id="doc-6-readme-sram-ai-adoption-playbook">SRAM AI Adoption Playbook</h1>
+</ul></div></section><section class="doc fade-in" id="doc-7-readme" data-folder="root"><div class="doc-header"><span class="doc-folder">root</span><h2 class="doc-title">Readme</h2></div><div class="doc-body"><h1 id="doc-7-readme-sram-ai-adoption-playbook">SRAM AI Adoption Playbook</h1>
 <p>Group project for AIML/MORS 950 &quot;Human and Machine Intelligence&quot; — Northwestern Kellogg, Winter 2026.</p>
 <p><strong>Goal:</strong> Produce a C-suite-ready AI Adoption Playbook for SRAM LLC (6–8 pages).</p>
 <p><strong>Team lead:</strong> Donovan Palmer</p>
-<p>---</p>
-<h2 id="doc-6-readme-getting-started-no-technical-experience-required">Getting Started (No Technical Experience Required)</h2>
+<hr>
+<h2 id="doc-7-readme-getting-started-no-technical-experience-required">Getting Started (No Technical Experience Required)</h2>
 <p>You will use Claude Code to contribute to this project. Claude Code is an AI assistant that works directly inside this repository. It reads the project files, understands the context, and helps you write, edit, and organize content.</p>
-<h3 id="doc-6-readme-step-1-install-claude-code">Step 1 — Install Claude Code</h3>
+<h3 id="doc-7-readme-step-1-install-claude-code">Step 1 — Install Claude Code</h3>
 <p>Open your terminal (on Mac, press Cmd + Space and type &quot;Terminal&quot;) and run:</p>
 <pre><code>
 npm install -g @anthropic-ai/claude-code
 </code></pre>
 <p>If you do not have Node.js installed, download it first from https://nodejs.org and then run the command above.</p>
-<h3 id="doc-6-readme-step-2-clone-this-repository">Step 2 — Clone This Repository</h3>
+<h3 id="doc-7-readme-step-2-clone-this-repository">Step 2 — Clone This Repository</h3>
 <p>In your terminal, run:</p>
 <pre><code>
 git clone https://github.com/donovan-palmer/sram-ai-playbook.git
 cd sram-ai-playbook
 </code></pre>
 <p>This downloads the project to your computer.</p>
-<h3 id="doc-6-readme-step-3-open-claude-code">Step 3 — Open Claude Code</h3>
+<h3 id="doc-7-readme-step-3-open-claude-code">Step 3 — Open Claude Code</h3>
 <p>From inside the project folder, run:</p>
 <pre><code>
 claude
 </code></pre>
 <p>Claude Code will start up, read all the project files automatically, and be ready to help. You do not need to explain the project to it. It already knows the context.</p>
-<h3 id="doc-6-readme-step-4-ask-claude-to-help-you">Step 4 — Ask Claude to Help You</h3>
+<h3 id="doc-7-readme-step-4-ask-claude-to-help-you">Step 4 — Ask Claude to Help You</h3>
 <p>Just type what you want to do. For example:</p>
 <ul>
 <li>&quot;Summarize what we have so far on the AI adoption strategy&quot;</li>
@@ -826,9 +1307,9 @@ claude
 <li>&quot;Review the revenue analysis and tell me what is missing&quot;</li>
 </ul>
 <p>Claude will make changes, explain what it did, and ask before doing anything significant.</p>
-<p>---</p>
-<h2 id="doc-6-readme-what-is-in-this-repository">What Is In This Repository</h2>
-<table><thead><tr><th>File or Folder</th><th>What It Contains</th></tr></thead><tbody>
+<hr>
+<h2 id="doc-7-readme-what-is-in-this-repository">What Is In This Repository</h2>
+<div class="table-wrap"><table><thead><tr><th>File or Folder</th><th>What It Contains</th></tr></thead><tbody>
 <tr><td><code>analysis.md</code></td><td>Full competitive intelligence on SRAM — company overview, revenue, competitors, leadership</td></tr>
 <tr><td><code>ai adoption/ai-adoption-outline.md</code></td><td>AI adoption strategy with prioritized use cases and tool recommendations</td></tr>
 <tr><td><code>revenue/revenue_streams_sram.md</code></td><td>Breakdown of SRAM&#x27;s revenue streams</td></tr>
@@ -837,13 +1318,13 @@ claude
 <tr><td><code>analysis-hub.html</code></td><td>A single HTML file that displays all the analysis in one place — open it in your browser</td></tr>
 <tr><td><code>tools/build_analysis_hub.py</code></td><td>Script that rebuilds <code>analysis-hub.html</code> after you make edits</td></tr>
 <tr><td><code>syllabus.md</code></td><td>Course syllabus for reference</td></tr>
-</tbody></table>
-<p>---</p>
-<h2 id="doc-6-readme-how-to-view-the-full-analysis">How to View the Full Analysis</h2>
+</tbody></table></div>
+<hr>
+<h2 id="doc-7-readme-how-to-view-the-full-analysis">How to View the Full Analysis</h2>
 <p>Open <code>analysis-hub.html</code> in your browser. It pulls everything together in one readable view. If you make edits to any markdown file, ask Claude to rebuild it:</p>
 <p>&gt; &quot;Rebuild the analysis hub&quot;</p>
-<p>---</p>
-<h2 id="doc-6-readme-how-claims-are-labeled">How Claims Are Labeled</h2>
+<hr>
+<h2 id="doc-7-readme-how-claims-are-labeled">How Claims Are Labeled</h2>
 <p>Every factual claim in the analysis files carries one of three labels:</p>
 <ul>
 <li><code>Confirmed</code> — backed by a direct source</li>
@@ -851,20 +1332,20 @@ claude
 <li><code>Speculative</code> — plausible but not verified</li>
 </ul>
 <p>Every claim also has a bracketed source (like <code>[S1]</code>). The full source list is at the bottom of <code>analysis.md</code>. Do not add claims without a label and a source.</p>
-<p>---</p>
-<h2 id="doc-6-readme-how-to-contribute">How to Contribute</h2>
+<hr>
+<h2 id="doc-7-readme-how-to-contribute">How to Contribute</h2>
 <p>Claude Code handles the technical parts. You focus on the content.</p>
 <p>1. Tell Claude what you want to add or change</p>
 <p>2. Review what Claude proposes before it makes changes</p>
 <p>3. Claude will create a branch, commit the change, and open a pull request</p>
 <p>4. Donovan reviews and merges</p>
 <p>If you get stuck, just ask Claude: &quot;What should I work on next?&quot; or &quot;Walk me through how to contribute.&quot;</p>
-<p>---</p>
-<h2 id="doc-6-readme-questions">Questions</h2>
-<p>Reach out to Donovan Palmer directly.</p></section><section class="doc" id="doc-7-revenuestreamssram"><h2 class="doc-title">revenue/revenue_streams_sram.md</h2><h1 id="doc-7-revenuestreamssram-sram-revenue-architecture-how-the-company-makes-money">SRAM Revenue Architecture: How the Company Makes Money</h1>
+<hr>
+<h2 id="doc-7-readme-questions">Questions</h2>
+<p>Reach out to Donovan Palmer directly.</p></div></section><section class="doc fade-in" id="doc-8-revenuestreamssram" data-folder="revenue"><div class="doc-header"><span class="doc-folder">revenue</span><h2 class="doc-title">Revenue Streams Sram</h2></div><div class="doc-body"><h1 id="doc-8-revenuestreamssram-sram-revenue-architecture-how-the-company-makes-money">SRAM Revenue Architecture: How the Company Makes Money</h1>
 <p>Date: 2026-02-22</p>
 <p>Company: SRAM LLC (private)</p>
-<h2 id="doc-7-revenuestreamssram-1-core-revenue-model">1) Core Revenue Model</h2>
+<h2 id="doc-8-revenuestreamssram-1-core-revenue-model">1) Core Revenue Model</h2>
 <p>SRAM is a performance cycling components company that makes money by selling a portfolio of premium bike systems and parts through:</p>
 <ul>
 <li>OEM bike manufacturers (components spec&#x27;d on complete bikes)</li>
@@ -872,10 +1353,10 @@ claude
 <li>Aftermarket replacement and upgrade purchases (riders/teams through dealers and retail channels)</li>
 </ul>
 <p>SRAM is private and does not publish audited segment revenue. That means the Week 2 answer must use a &quot;revenue architecture&quot; approach: identify the major revenue streams, how they monetize, and why SRAM can sustain pricing.</p>
-<h2 id="doc-7-revenuestreamssram-2-main-revenue-streams-structured-view">2) Main Revenue Streams (Structured View)</h2>
+<h2 id="doc-8-revenuestreamssram-2-main-revenue-streams-structured-view">2) Main Revenue Streams (Structured View)</h2>
 <p>Private-company note: SRAM does not disclose segment revenue percentages publicly. The tables below use observable product breadth, channel visibility, and pricing signals as proxies for relative importance.</p>
-<h3 id="doc-7-revenuestreamssram-a-revenue-stream-map-what-they-sell-how-they-get-paid">A. Revenue Stream Map (What They Sell / How They Get Paid)</h3>
-<table><thead><tr><th>Revenue Stream</th><th>Representative Products</th><th>Primary Channels</th><th>Revenue Mechanics</th><th>Relative Importance (Estimate)</th></tr></thead><tbody>
+<h3 id="doc-8-revenuestreamssram-a-revenue-stream-map-what-they-sell-how-they-get-paid">A. Revenue Stream Map (What They Sell / How They Get Paid)</h3>
+<div class="table-wrap"><table><thead><tr><th>Revenue Stream</th><th>Representative Products</th><th>Primary Channels</th><th>Revenue Mechanics</th><th>Relative Importance (Estimate)</th></tr></thead><tbody>
 <tr><td>Core drivetrain + braking systems</td><td><code>RED</code>, <code>Force</code>, <code>Rival</code>, <code>Apex</code>, <code>Eagle</code>, <code>Eagle Transmission</code>, brakes/controls</td><td>OEMs, dealers, aftermarket riders</td><td>Groupsets, component upgrades, replacement parts</td><td>Very High</td></tr>
 <tr><td>Suspension (RockShox)</td><td>Forks, rear shocks, suspension controls, service parts</td><td>OEMs, dealers, MTB aftermarket</td><td>OE spec, upgrades, rebuild/service cycles</td><td>High</td></tr>
 <tr><td>Wheels and cockpit (Zipp)</td><td>Wheels, hubs, bars, stems, aero/performance components</td><td>OEMs, dealers, enthusiast aftermarket</td><td>Premium wheelsets and components</td><td>Medium</td></tr>
@@ -884,9 +1365,9 @@ claude
 <tr><td>Pedals (TIME)</td><td>Road and MTB pedals / pedal systems</td><td>Dealers, aftermarket riders, selected OEMs</td><td>Hardware sales and replacement cycles</td><td>Low to Medium</td></tr>
 <tr><td>Wear parts / service parts / accessories</td><td>Chains, cassettes, chainrings, brake pads, rotors, batteries, small parts, kits</td><td>Dealers, service shops, aftermarket riders</td><td>Recurring replacement demand tied to installed base</td><td>High (recurring support stream)</td></tr>
 <tr><td>Adjacent brands / newer additions</td><td>Velocio apparel, Ochain-related additions, other integrated categories</td><td>Direct retail, dealers, enthusiasts</td><td>Product sales in adjacent categories</td><td>Low (current), option value</td></tr>
-</tbody></table>
-<h3 id="doc-7-revenuestreamssram-b-why-sram-can-charge-moat-pricing-power-by-stream">B. Why SRAM Can Charge (Moat / Pricing Power by Stream)</h3>
-<table><thead><tr><th>Revenue Stream</th><th>Pricing Power / Moat</th><th>Why It Works in Practice</th></tr></thead><tbody>
+</tbody></table></div>
+<h3 id="doc-8-revenuestreamssram-b-why-sram-can-charge-moat-pricing-power-by-stream">B. Why SRAM Can Charge (Moat / Pricing Power by Stream)</h3>
+<div class="table-wrap"><table><thead><tr><th>Revenue Stream</th><th>Pricing Power / Moat</th><th>Why It Works in Practice</th></tr></thead><tbody>
 <tr><td>Core drivetrain + braking systems</td><td>Brand reputation + AXS ecosystem + OE relationships</td><td>Performance credibility and system compatibility reduce pure price comparison</td></tr>
 <tr><td>Suspension (RockShox)</td><td>Product performance reputation + service ecosystem</td><td>OEM trust and rider/shop familiarity support premium MTB pricing</td></tr>
 <tr><td>Wheels and cockpit (Zipp)</td><td>Premium performance signaling + engineering brand</td><td>Enthusiast buyers pay for weight/aero/performance positioning</td></tr>
@@ -895,64 +1376,64 @@ claude
 <tr><td>Pedals (TIME)</td><td>Heritage brand + rider preference / feel</td><td>Contact-point familiarity and brand loyalty support premium choices</td></tr>
 <tr><td>Wear parts / service parts / accessories</td><td>Installed-base lock-in + compatibility requirements</td><td>Maintenance is non-optional and shops prefer known-compatible parts</td></tr>
 <tr><td>Adjacent brands / newer additions</td><td>Portfolio adjacency + share-of-wallet expansion</td><td>Cross-sell works if SRAM keeps brand quality and integration coherent</td></tr>
-</tbody></table>
-<h2 id="doc-7-revenuestreamssram-3-why-the-revenue-model-works-and-why-sram-can-charge-premium-prices">3) Why the Revenue Model Works (and Why SRAM Can Charge Premium Prices)</h2>
-<h3 id="doc-7-revenuestreamssram-a-oem-aftermarket-flywheel">A. OEM + Aftermarket Flywheel</h3>
+</tbody></table></div>
+<h2 id="doc-8-revenuestreamssram-3-why-the-revenue-model-works-and-why-sram-can-charge-premium-prices">3) Why the Revenue Model Works (and Why SRAM Can Charge Premium Prices)</h2>
+<h3 id="doc-8-revenuestreamssram-a-oem-aftermarket-flywheel">A. OEM + Aftermarket Flywheel</h3>
 <ul>
 <li>OEM spec wins place SRAM products on complete bikes.</li>
 <li>That creates an installed base that later buys replacements, upgrades, and compatible accessories.</li>
 <li>The result is a multi-year revenue arc per bike platform, not just a one-time sale.</li>
 </ul>
-<h3 id="doc-7-revenuestreamssram-b-system-level-selling-not-just-parts">B. System-Level Selling (Not Just Parts)</h3>
+<h3 id="doc-8-revenuestreamssram-b-system-level-selling-not-just-parts">B. System-Level Selling (Not Just Parts)</h3>
 <ul>
 <li>SRAM is not only selling a derailleur or brake lever; it increasingly sells a system (drivetrain + braking + controls + electronics + app/software + data integrations).</li>
 <li>System performance and compatibility reduce price-only comparison and support premium pricing.</li>
 </ul>
-<h3 id="doc-7-revenuestreamssram-c-multi-brand-portfolio-bundling">C. Multi-Brand Portfolio Bundling</h3>
+<h3 id="doc-8-revenuestreamssram-c-multi-brand-portfolio-bundling">C. Multi-Brand Portfolio Bundling</h3>
 <ul>
 <li>SRAM can participate in more of the bike bill of materials via SRAM, RockShox, Zipp, Quarq, Hammerhead, TIME, and newer additions.</li>
 <li>This increases wallet share per rider and improves leverage with OEMs that prefer fewer high-quality suppliers.</li>
 </ul>
-<h3 id="doc-7-revenuestreamssram-d-performance-brand-switching-friction">D. Performance Brand + Switching Friction</h3>
+<h3 id="doc-8-revenuestreamssram-d-performance-brand-switching-friction">D. Performance Brand + Switching Friction</h3>
 <ul>
 <li>Riders, teams, and shops care about reliability, setup familiarity, and serviceability.</li>
 <li>Once a rider/shop is trained on a platform (AXS, brake bleed procedures, compatibility rules), switching is possible but not frictionless.</li>
 <li>This creates practical switching costs even when alternatives exist.</li>
 </ul>
-<h2 id="doc-7-revenuestreamssram-4-where-srams-revenue-streams-are-vulnerable">4) Where SRAM&#x27;s Revenue Streams Are Vulnerable</h2>
+<h2 id="doc-8-revenuestreamssram-4-where-srams-revenue-streams-are-vulnerable">4) Where SRAM&#x27;s Revenue Streams Are Vulnerable</h2>
 <p>The question is not whether SRAM has revenue streams. It is which streams are most exposed and what could reduce pricing power or growth.</p>
-<h2 id="doc-7-revenuestreamssram-5-near-term-risks-12-24-months">5) Near-Term Risks (12-24 Months)</h2>
-<table><thead><tr><th>Near-Term Risk</th><th>Exposed Streams</th><th>Why It Matters to Revenue</th><th>Early Signals to Monitor</th></tr></thead><tbody>
+<h2 id="doc-8-revenuestreamssram-5-near-term-risks-12-24-months">5) Near-Term Risks (12-24 Months)</h2>
+<div class="table-wrap"><table><thead><tr><th>Near-Term Risk</th><th>Exposed Streams</th><th>Why It Matters to Revenue</th><th>Early Signals to Monitor</th></tr></thead><tbody>
 <tr><td>Bike industry inventory corrections / channel destocking</td><td>Drivetrains, brakes, suspension, wheels</td><td>OEM and dealer orders can slow sharply even if end demand is stable</td><td>Dealer discounting, OEM spec downgrades, broad promotions</td></tr>
 <tr><td>Consumer trade-down behavior</td><td>Premium groupsets, Zipp, Quarq, Hammerhead</td><td>Riders may delay upgrades or buy lower-tier alternatives in weaker macro periods</td><td>Mix shift from premium to mid-tier, more promo pricing</td></tr>
 <tr><td>Firmware/app support friction (AXS/Hammerhead)</td><td>Connected products plus premium component ecosystem</td><td>Support issues can hurt brand trust and reduce willingness to pay premium prices</td><td>Review complaints, app ratings, support forum volume, warranty chatter</td></tr>
 <tr><td>Competitor product refresh cycles (Shimano/Fox/Garmin/Wahoo)</td><td>Most categories (especially drivetrain, suspension, head units)</td><td>Better competitor launches can slow SRAM upgrade cycles or force price response</td><td>Launch cadence, media reviews, OEM spec changes</td></tr>
 <tr><td>OE spec mix volatility</td><td>Core systems and suspension</td><td>OEM decisions can move large volumes quickly across model years</td><td>OEM catalog specs, distributor order patterns, bike model announcements</td></tr>
-</tbody></table>
-<h2 id="doc-7-revenuestreamssram-6-long-term-risks-3-7-years">6) Long-Term Risks (3-7 Years)</h2>
-<table><thead><tr><th>Long-Term Risk</th><th>Exposed Streams</th><th>Why It Matters to Revenue</th><th>Strategic Implication</th></tr></thead><tbody>
+</tbody></table></div>
+<h2 id="doc-8-revenuestreamssram-6-long-term-risks-3-7-years">6) Long-Term Risks (3-7 Years)</h2>
+<div class="table-wrap"><table><thead><tr><th>Long-Term Risk</th><th>Exposed Streams</th><th>Why It Matters to Revenue</th><th>Strategic Implication</th></tr></thead><tbody>
 <tr><td>Margin pressure from stronger value-tier competition</td><td>Core drivetrains/brakes, wear parts</td><td>If mid-market alternatives improve, SRAM may face lower realized pricing in broader segments</td><td>Requires clearer tiering and stronger differentiation at each price point</td></tr>
 <tr><td>Ecosystem fragmentation / standards shifts</td><td>Drivetrains, power, connected devices</td><td>New standards or compatibility changes can weaken platform lock-in</td><td>SRAM must shape standards and maintain compatibility leadership</td></tr>
 <tr><td>Software capability gap vs expectations</td><td>Hammerhead + AXS-connected experience</td><td>Riders increasingly expect consumer-tech quality in UX, updates, and diagnostics</td><td>Requires sustained software investment, not only hardware excellence</td></tr>
 <tr><td>Overextension across too many categories</td><td>Adjacent brands/new acquisitions</td><td>Portfolio complexity can dilute focus and execution quality</td><td>Need disciplined integration and capital allocation</td></tr>
 <tr><td>Cycling participation / demand cyclicality over longer periods</td><td>Most categories</td><td>Category growth may be uneven by geography and discipline</td><td>Revenue resilience depends on portfolio balance and aftermarket capture</td></tr>
-</tbody></table>
-<h2 id="doc-7-revenuestreamssram-7-summary">7) Summary</h2>
+</tbody></table></div>
+<h2 id="doc-8-revenuestreamssram-7-summary">7) Summary</h2>
 <p>SRAM makes money through a portfolio of performance cycling revenue streams led by core drivetrain and braking systems, supported by suspension (RockShox), wheels/cockpit (Zipp), power meters (Quarq), connected head units (Hammerhead), pedals (TIME), and recurring wear/service parts across the installed base. The reason SRAM charges premium prices is not only product quality. It is the combination of OEM spec relationships, aftermarket replacement cycles, system-level integration (especially AXS), and a multi-brand portfolio that increases switching friction and share of wallet. The key question for the AI playbook is which parts of the revenue base are most vulnerable to channel inventory cycles, premium trade-down, and software/support execution gaps in a more connected product stack.</p>
-<h2 id="doc-7-revenuestreamssram-sources">Sources</h2>
+<h2 id="doc-8-revenuestreamssram-sources">Sources</h2>
 <ul>
-<li><a href="https://www.sram.com/en/company">SRAM Company page</a></li>
-<li><a href="https://www.sram.com/en/company/history">SRAM History page</a></li>
-<li><a href="https://www.sram.com/en/support">SRAM support (AXS and product support pages)</a></li>
-<li><a href="https://www.sram.com/en/sram/road/collections/etap-axs/collection">SRAM road AXS collection pages / product pages (pricing examples)</a></li>
-<li><a href="https://www.sram.com/en/sram/mountain/collections/eagle-transmission">SRAM mountain collections (Eagle Transmission)</a></li>
-<li><a href="https://www.linkedin.com/company/sram-corporation/">LinkedIn - SRAM company page (employee band / leadership labels)</a></li>
-<li><a href="https://builtin.com/company/sram">Built In - SRAM (jobs/tech stack signals, secondary)</a></li>
-</ul></section><section class="doc" id="doc-8-syllabus"><h2 class="doc-title">syllabus.md</h2><h1 id="doc-8-syllabus-human-and-machine-intelligence-aiml-950-mors-950">Human and Machine Intelligence (AIML 950 / MORS 950)</h1>
+<li><a href="https://www.sram.com/en/company" target="_blank">SRAM Company page</a></li>
+<li><a href="https://www.sram.com/en/company/history" target="_blank">SRAM History page</a></li>
+<li><a href="https://www.sram.com/en/support" target="_blank">SRAM support (AXS and product support pages)</a></li>
+<li><a href="https://www.sram.com/en/sram/road/collections/etap-axs/collection" target="_blank">SRAM road AXS collection pages / product pages (pricing examples)</a></li>
+<li><a href="https://www.sram.com/en/sram/mountain/collections/eagle-transmission" target="_blank">SRAM mountain collections (Eagle Transmission)</a></li>
+<li><a href="https://www.linkedin.com/company/sram-corporation/" target="_blank">LinkedIn - SRAM company page (employee band / leadership labels)</a></li>
+<li><a href="https://builtin.com/company/sram" target="_blank">Built In - SRAM (jobs/tech stack signals, secondary)</a></li>
+</ul></div></section><section class="doc fade-in" id="doc-9-syllabus" data-folder="root"><div class="doc-header"><span class="doc-folder">root</span><h2 class="doc-title">Syllabus</h2></div><div class="doc-body"><h1 id="doc-9-syllabus-human-and-machine-intelligence-aiml-950-mors-950">Human and Machine Intelligence (AIML 950 / MORS 950)</h1>
 <p>Winter 2026 syllabus (reformatted from the PDF source).</p>
 <p>Source: <code>../AIML950_W26_groh.pdf</code></p>
 <p>Reformatted on: 2026-02-19</p>
-<h2 id="doc-8-syllabus-instructor-and-logistics">Instructor and Logistics</h2>
+<h2 id="doc-9-syllabus-instructor-and-logistics">Instructor and Logistics</h2>
 <ul>
 <li>Professor: Matt Groh (he/him/his)</li>
 <li>Email: matthew.groh@kellogg.northwestern.edu</li>
@@ -960,43 +1441,43 @@ claude
 <li>Section 81: Saturdays, 9:00 AM to 12:00 PM, TBD (Chicago)</li>
 <li>Office hours: Schedule available on Canvas and by appointment</li>
 </ul>
-<h2 id="doc-8-syllabus-course-overview">Course Overview</h2>
+<h2 id="doc-9-syllabus-course-overview">Course Overview</h2>
 <p>Human and Machine Intelligence builds upon the foundations of AIML901-MO and dives deeper into how humans and AI interact, what that means for leadership and organizations, and how to successfully lead AI adoption in organizations.</p>
 <p>This is a real-world applications oriented course that draws on interdisciplinary insights from machine learning, cognitive science, human-computer interaction, organizational behavior, and literature to examine how and why humans and machines differ in problem-solving abilities.</p>
 <p>By understanding the strengths and weaknesses of current and future humans and machines across a breadth of case studies, you will learn to recognize where AI can complement human intelligence and organizational processes, when human judgment is indispensable, what trade-offs emerge when employing humans versus machines, and how to design hybrid teams that outperform either humans or machines working alone.</p>
 <p>This course is an interactive lecture-based course with reading reflection assignments and a final group project. The goal of the course is to prepare you to identify and evaluate AI opportunities, uncover human and machine blindspots, navigate ethical dilemmas, and lead teams of hybrid human and machine intelligence to effectively integrate AI into new businesses and adapt old ones.</p>
-<h2 id="doc-8-syllabus-northwestern-syllabus-standards">Northwestern Syllabus Standards</h2>
+<h2 id="doc-9-syllabus-northwestern-syllabus-standards">Northwestern Syllabus Standards</h2>
 <p>This course follows the Northwestern University Syllabus Standards. Students are responsible for familiarizing themselves with this information. Students can find useful resources for safety and security, academic support, and mental and physical health and well-being on the NU help website.</p>
 <p>Unauthorized copying or distribution of any course materials is strictly prohibited.</p>
-<h2 id="doc-8-syllabus-class-attendance-and-screen-policy">Class Attendance and Screen Policy</h2>
+<h2 id="doc-9-syllabus-class-attendance-and-screen-policy">Class Attendance and Screen Policy</h2>
 <p>Students are expected to attend every class in person unless they are feeling sick or have an approved absence.</p>
 <p>No laptops, tablets, or cell phones are allowed to be used in class except when laptops are needed for in-class exercises.</p>
 <p>This policy is designed to avoid distractions for you and your classmates. Note-taking with pen and notebook is strongly encouraged because research shows that handwriting supports memory and learning better than typing (see Flanigan et al., 2024, &quot;Typed versus Handwritten&quot;).</p>
-<h2 id="doc-8-syllabus-grading">Grading</h2>
+<h2 id="doc-9-syllabus-grading">Grading</h2>
 <ul>
 <li>Final Project: 55%</li>
 <li>Reflection Assignments: 30%</li>
 <li>Participation: 15%</li>
 </ul>
-<h3 id="doc-8-syllabus-final-project-55">Final Project (55%)</h3>
+<h3 id="doc-9-syllabus-final-project-55">Final Project (55%)</h3>
 <p>Today, nearly every company represents a case for AI adoption. The real managerial question is how to do AI adoption effectively given the organization&#x27;s operational processes, strategy, and culture.</p>
 <p>In the final group project (with individual and group deliverables), you will identify, think through, and artfully write up an AI adoption playbook for a Fortune 500 company.</p>
 <p>The goal is to produce a C-suite-ready playbook: concise, insightful, and action-oriented.</p>
 <p>The AI Adoption Playbook should be 6 to 8 pages and structured as if being delivered to the company&#x27;s executive leadership.</p>
-<h4 id="doc-8-syllabus-final-project-rubric-structure">Final Project Rubric Structure</h4>
+<h4 id="doc-9-syllabus-final-project-rubric-structure">Final Project Rubric Structure</h4>
 <p>1. Executive Summary (1 page)</p>
 <p>2. What the company does, with a focus on value generation process</p>
 <p>3. Where AI can add value to current processes</p>
 <p>4. How to integrate AI into current processes, including what to pilot, how to measure success, and what organizational enablers (talent, data, leadership) are required</p>
 <p>5. What an AI-first version of this company could look like in 2031, including where significant new revenue streams could emerge</p>
-<h4 id="doc-8-syllabus-milestones">Milestones</h4>
+<h4 id="doc-9-syllabus-milestones">Milestones</h4>
 <ul>
 <li>By end of Week 2: Individual 1-page outline on how the company works, focused on the problem: main revenue streams.</li>
 <li>By end of Week 3: Individual 1-page outline on AI adoption readiness, focused on the solution: how AI can decrease costs and increase value of new and existing revenue streams. Include business processes, specific AI tools, and rough order-of-magnitude cost/benefit numbers.</li>
 <li>By end of Week 4: Team interview with someone in the organization responsible for management and innovation. Submit a 1 to 3 page interview overview (one interview per team).</li>
 <li>By end of Week 5: Submit the final 6 to 8 page AI Adoption Playbook and present an 8-minute version to the class.</li>
 </ul>
-<h4 id="doc-8-syllabus-final-project-evaluation-criteria">Final Project Evaluation Criteria</h4>
+<h4 id="doc-9-syllabus-final-project-evaluation-criteria">Final Project Evaluation Criteria</h4>
 <ul>
 <li>Depth: How fully and insightfully you understand the company, industry, and AI adoption potential.</li>
 <li>Specificity: How concrete and detailed the analysis is, with real workflows, decisions, metrics, and implementable examples.</li>
@@ -1006,10 +1487,10 @@ claude
 </ul>
 <p>Peer evaluations will be collected and used directly to help determine each individual&#x27;s final project grade.</p>
 <p>Milestone deliverables in Weeks 2 to 4 are graded on a check-plus/check/check-minus scale. The final deliverable uses a standard letter grade scale.</p>
-<h3 id="doc-8-syllabus-reflection-assignments-30">Reflection Assignments (30%)</h3>
+<h3 id="doc-9-syllabus-reflection-assignments-30">Reflection Assignments (30%)</h3>
 <p>In Weeks 2, 3, and 4, you will write a short reflection paper (minimum 1 page, maximum 2 pages) on one or more assigned readings that week.</p>
 <p>Format requirement: double-spaced, 12-point type.</p>
-<h4 id="doc-8-syllabus-reflection-rubric">Reflection Rubric</h4>
+<h4 id="doc-9-syllabus-reflection-rubric">Reflection Rubric</h4>
 <p>1. Summarize the main topic, key ideas, and management relevance in a short paragraph.</p>
 <p>2. Explain what you find exceptional and what surprised you.</p>
 <p>3. Describe a work/organizational experience that connects to the reading, including what matches, what does not, and what leadership questions this raises.</p>
@@ -1021,18 +1502,18 @@ claude
 <li>5 points: connection to your lived managerial experience</li>
 </ul>
 <p>If you use AI for light brainstorming or proofreading, that is allowed and encouraged. The thinking must still be yours.</p>
-<h4 id="doc-8-syllabus-reflection-due-date-and-late-policy">Reflection Due Date and Late Policy</h4>
+<h4 id="doc-9-syllabus-reflection-due-date-and-late-policy">Reflection Due Date and Late Policy</h4>
 <ul>
 <li>Due: one hour before class starts</li>
 <li>Late penalty: 10% per day late (up to 3 days)</li>
 <li>Examples: 1 minute late = 10% deduction; 25 hours late = 20%; 3 days late = 30%; 4 days late = 0%</li>
 </ul>
-<h3 id="doc-8-syllabus-participation-15">Participation (15%)</h3>
+<h3 id="doc-9-syllabus-participation-15">Participation (15%)</h3>
 <p>You are expected to attend every class and actively engage in group discussions. Participation grade is based on attendance and in-class participation.</p>
-<h2 id="doc-8-syllabus-ai-policy">AI Policy</h2>
+<h2 id="doc-9-syllabus-ai-policy">AI Policy</h2>
 <p>Use AI as a tool for assignments in this class, but do not blindly trust outputs and do not copy outputs directly. Use your own words. You are responsible for errors and omissions in your submitted work.</p>
-<h2 id="doc-8-syllabus-aiml-950-mors-950-winter-2026-schedule">AIML 950 / MORS 950 Winter 2026 Schedule</h2>
-<h3 id="doc-8-syllabus-1-intelligence-across-scales">1. Intelligence Across Scales</h3>
+<h2 id="doc-9-syllabus-aiml-950-mors-950-winter-2026-schedule">AIML 950 / MORS 950 Winter 2026 Schedule</h2>
+<h3 id="doc-9-syllabus-1-intelligence-across-scales">1. Intelligence Across Scales</h3>
 <p>Guiding questions:</p>
 <ul>
 <li>How do we compare intelligence across biological organisms, artificial systems, and organizations?</li>
@@ -1044,7 +1525,7 @@ claude
 <li>Measuring AI Ability to Complete Long Tasks (2025) by METR</li>
 <li>Powers of Ten by Charles and Ray Eames</li>
 </ul>
-<h3 id="doc-8-syllabus-2-decision-making-blindspots">2. Decision-Making Blindspots</h3>
+<h3 id="doc-9-syllabus-2-decision-making-blindspots">2. Decision-Making Blindspots</h3>
 <p>Guiding questions:</p>
 <ul>
 <li>What cognitive biases systematically distort human decision-making?</li>
@@ -1056,7 +1537,7 @@ claude
 <li>Why People Resist Embracing AI by Julian de Freitas (2024)</li>
 <li>The Illusion Illusion by Tomer Ullman (2024)</li>
 </ul>
-<h3 id="doc-8-syllabus-3-creativity">3. Creativity</h3>
+<h3 id="doc-9-syllabus-3-creativity">3. Creativity</h3>
 <p>Guiding questions:</p>
 <ul>
 <li>What is creative thinking?</li>
@@ -1067,7 +1548,7 @@ claude
 <ul>
 <li>Innovation (Chapter 5) in <em>Primal Intelligence</em> by Angus Fletcher (2026)</li>
 </ul>
-<h3 id="doc-8-syllabus-4-the-media-equation-eliza-and-ai-boyfriends">4. The Media Equation, Eliza, and AI Boyfriends</h3>
+<h3 id="doc-9-syllabus-4-the-media-equation-eliza-and-ai-boyfriends">4. The Media Equation, Eliza, and AI Boyfriends</h3>
 <p>Guiding questions:</p>
 <ul>
 <li>Why do humans treat computers and AI systems as social actors, often unconsciously?</li>
@@ -1079,7 +1560,7 @@ claude
 <li>Chapter 1, &quot;The Media Equation&quot; by Byron Reeves and Cliff Nass (1996)</li>
 <li>Empowering AI Companions for Enhanced Relationship Marketing by Rijul Chaturvedi, Sanjeev Verma, and Vartika Srivastava (2025), with video companion</li>
 </ul>
-<h3 id="doc-8-syllabus-5-hype-engineering-and-dousing">5. Hype Engineering and Dousing</h3>
+<h3 id="doc-9-syllabus-5-hype-engineering-and-dousing">5. Hype Engineering and Dousing</h3>
 <p>Guiding questions:</p>
 <ul>
 <li>Why does hype emerge so predictably around new technologies like AI?</li>
@@ -1091,7 +1572,7 @@ claude
 <li><em>Normal Technology</em> by Arvind Narayanan and Sayash Kapoor (2025)</li>
 <li>Chapter 1, &quot;An Introduction to AI Hype&quot; from <em>The AI Con</em> by Emily Bender and Alex Hanna (2025)</li>
 </ul>
-<h3 id="doc-8-syllabus-6-recommendations">6. Recommendations</h3>
+<h3 id="doc-9-syllabus-6-recommendations">6. Recommendations</h3>
 <p>Guiding question:</p>
 <ul>
 <li>Why do people trust (or resist) recommendations differently when they come from humans versus algorithms, and what risks emerge when organizations over-rely on machine recommendations?</li>
@@ -1100,7 +1581,7 @@ claude
 <ul>
 <li>The Netflix Recommender Systems: Algorithms, Business Value, and Innovations by Carlos Gomez-Uribe and Neil Hunt (2015)</li>
 </ul>
-<h3 id="doc-8-syllabus-7-intuition-and-imagination">7. Intuition and Imagination</h3>
+<h3 id="doc-9-syllabus-7-intuition-and-imagination">7. Intuition and Imagination</h3>
 <p>Guiding questions:</p>
 <ul>
 <li>What role should human intuition play in high-stakes managerial decisions alongside AI?</li>
@@ -1116,7 +1597,7 @@ claude
 <li>The Last Question by Isaac Asimov (1956)</li>
 <li>Optional: Common Sense by John McCarthy (2002)</li>
 </ul>
-<h3 id="doc-8-syllabus-8-storytelling">8. Storytelling</h3>
+<h3 id="doc-9-syllabus-8-storytelling">8. Storytelling</h3>
 <p>Guiding questions:</p>
 <ul>
 <li>Why did Steve Jobs say &quot;The most powerful person in the world is the storyteller&quot;?</li>
@@ -1128,7 +1609,7 @@ claude
 <li>Why Your Intuition, Imagination, and Emotion Will Outlast AI by Eric Markowitz and Angus Fletcher (2025)</li>
 <li>The Secret Structure of Great Talks by Nancy Duarte (2011)</li>
 </ul>
-<h3 id="doc-8-syllabus-9-emotions">9. Emotions</h3>
+<h3 id="doc-9-syllabus-9-emotions">9. Emotions</h3>
 <p>Guiding questions:</p>
 <ul>
 <li>How well can machines recognize, respond to, and express emotion?</li>
@@ -1138,13 +1619,13 @@ claude
 <ul>
 <li>Feeling Machines: Emotion AI at Affectiva by Shane Greenstein and John Masko (2019)</li>
 </ul>
-<h3 id="doc-8-syllabus-10-presentations">10. Presentations</h3>
+<h3 id="doc-9-syllabus-10-presentations">10. Presentations</h3>
 <ul>
 <li>Team presentation of AI Adoption Playbook</li>
 <li>Format: 8-minute presentation + 2 questions from classmates</li>
 </ul>
-<h2 id="doc-8-syllabus-session-modules-readings-and-assignments">Session Modules, Readings, and Assignments</h2>
-<table><thead><tr><th>Session</th><th>Module</th><th>Reading(s)</th><th>Assignment / Milestone</th></tr></thead><tbody>
+<h2 id="doc-9-syllabus-session-modules-readings-and-assignments">Session Modules, Readings, and Assignments</h2>
+<div class="table-wrap"><table><thead><tr><th>Session</th><th>Module</th><th>Reading(s)</th><th>Assignment / Milestone</th></tr></thead><tbody>
 <tr><td>1</td><td>Intelligence</td><td>Measuring AI Ability to Complete Long Tasks (2025) by METR</td><td>-</td></tr>
 <tr><td>2</td><td>Blind Spots</td><td>Why People Resist Embracing AI (2024); The Illusion Illusion (2024)</td><td>Project: Team formation complete and Fortune 500 company chosen (by end of lecture 2)</td></tr>
 <tr><td>3</td><td>Creativity</td><td>Innovation (Chapter 5) in <em>Primal Intelligence</em> by Angus Fletcher (2025 in this section of the PDF)</td><td>One-page reflection due before class</td></tr>
@@ -1155,8 +1636,8 @@ claude
 <tr><td>8</td><td>Storytelling</td><td>Why Your Intuition, Imagination, and Emotion Will Outlast AI (2025); The Secret Structure of Great Talks (2011)</td><td>-</td></tr>
 <tr><td>9</td><td>Emotion</td><td>Feeling Machines: Emotion AI at Affectiva (2019)</td><td>-</td></tr>
 <tr><td>10</td><td>Presentations</td><td>You&#x27;re presenting</td><td>Project: Final AI Adoption Playbook submitted (team)</td></tr>
-</tbody></table>
-<h2 id="doc-8-syllabus-chicago-mid-and-upper-market-companies-to-choose-from">Chicago Mid and Upper Market Companies to Choose From</h2>
+</tbody></table></div>
+<h2 id="doc-9-syllabus-chicago-mid-and-upper-market-companies-to-choose-from">Chicago Mid and Upper Market Companies to Choose From</h2>
 <ul>
 <li>Industrial Distribution: McMaster-Carr, W.W. Grainger, Lawson Products</li>
 <li>Manufacturing: Illinois Tool Works, Sloan Valve Co., Fellowes Brands</li>
@@ -1167,8 +1648,116 @@ claude
 <li>Commercial Banking: Wintrust Financial, Byline Bank, Northern Trust</li>
 <li>Hospitality and Foodservice: Portillo&#x27;s, Levy Restaurants, Potbelly Sandwich</li>
 <li>Consumer and Recreational Goods: Wilson Sporting Goods, SRAM, Radio Flyer</li>
-</ul></section>
+</ul></div></section>
+      </div>
+
+      <p style="text-align:center;font-size:12px;color:var(--ink-3);margin-top:32px;">
+        Built from 9 markdown files &mdash; rebuild with <code>python3 tools/build_analysis_hub.py</code>
+      </p>
     </main>
   </div>
+
+  <script>
+    // ── PROGRESS BAR ──
+    const bar = document.getElementById('progress');
+    window.addEventListener('scroll', () => {
+      const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100;
+      bar.style.width = pct + '%';
+    }, { passive: true });
+
+    // ── THEME ──
+    function toggleTheme() {
+      const html = document.documentElement;
+      const next = html.dataset.theme === 'dark' ? 'light' : 'dark';
+      html.dataset.theme = next;
+      localStorage.setItem('theme', next);
+    }
+    const saved = localStorage.getItem('theme');
+    if (saved) document.documentElement.dataset.theme = saved;
+
+    // ── COLLAPSE / EXPAND ──
+    document.querySelectorAll('.doc-header').forEach(h => {
+      h.addEventListener('click', () => {
+        h.closest('.doc').classList.toggle('collapsed');
+      });
+    });
+
+    function expandAll() {
+      document.querySelectorAll('.doc').forEach(d => d.classList.remove('collapsed'));
+    }
+
+    // ── FADE IN ON SCROLL ──
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.05 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // ── ACTIVE NAV ──
+    const sections = document.querySelectorAll('section.doc');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    const navObserver = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          navLinks.forEach(l => l.classList.remove('active'));
+          const active = document.querySelector(`.nav-link[href="#${e.target.id}"]`);
+          if (active) {
+            active.classList.add('active');
+            active.scrollIntoView({ block: 'nearest' });
+          }
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    sections.forEach(s => navObserver.observe(s));
+
+    // ── FILTER CHIPS ──
+    function filterDocs(filter, btn) {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('section.doc').forEach(doc => {
+        const folder = doc.dataset.folder;
+        doc.classList.toggle('hidden', filter !== 'all' && folder !== filter);
+      });
+      document.querySelectorAll('.nav-link').forEach(link => {
+        const folder = link.dataset.folder;
+        link.style.display = (filter === 'all' || folder === filter) ? '' : 'none';
+      });
+    }
+
+    // ── NAV SEARCH ──
+    document.getElementById('navSearch').addEventListener('input', function() {
+      const q = this.value.trim().toLowerCase();
+      document.querySelectorAll('.nav-link').forEach(link => {
+        const label = link.textContent.toLowerCase();
+        link.style.display = (!q || label.includes(q)) ? '' : 'none';
+      });
+    });
+
+    // ── CONTENT SEARCH (Ctrl/Cmd+K) ──
+    let searchMode = false;
+    document.addEventListener('keydown', e => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('navSearch').focus();
+      }
+    });
+
+    // ── TOAST ──
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    // Copy code blocks on click
+    document.querySelectorAll('pre').forEach(pre => {
+      pre.style.cursor = 'pointer';
+      pre.title = 'Click to copy';
+      pre.addEventListener('click', () => {
+        navigator.clipboard.writeText(pre.textContent).then(() => showToast('Copied to clipboard'));
+      });
+    });
+  </script>
 </body>
 </html>
