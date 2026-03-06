@@ -1,4 +1,4 @@
-# SRAM Week 2 Outline: How the Company Makes Money
+# SRAM Revenue Architecture: How the Company Makes Money
 
 Date: 2026-02-22  
 Company: SRAM LLC (private)
@@ -67,9 +67,9 @@ Private-company note: SRAM does not disclose segment revenue percentages publicl
 - Once a rider/shop is trained on a platform (AXS, brake bleed procedures, compatibility rules), switching is possible but not frictionless.
 - This creates practical switching costs even when alternatives exist.
 
-## 4) Problem Focus: Where SRAM's Revenue Streams Are Vulnerable
+## 4) Where SRAM's Revenue Streams Are Vulnerable
 
-The Week 2 problem is not "does SRAM have revenue streams?" It is "which revenue streams are most exposed, and what could reduce pricing power or growth?"
+The question is not whether SRAM has revenue streams. It is which streams are most exposed and what could reduce pricing power or growth.
 
 ## 5) Near-Term Risks (12-24 Months)
 
@@ -91,9 +91,9 @@ The Week 2 problem is not "does SRAM have revenue streams?" It is "which revenue
 | Overextension across too many categories | Adjacent brands/new acquisitions | Portfolio complexity can dilute focus and execution quality | Need disciplined integration and capital allocation |
 | Cycling participation / demand cyclicality over longer periods | Most categories | Category growth may be uneven by geography and discipline | Revenue resilience depends on portfolio balance and aftermarket capture |
 
-## 7) One-Page Answer
+## 7) Summary
 
-SRAM makes money through a portfolio of performance cycling revenue streams led by core drivetrain and braking systems, supported by suspension (RockShox), wheels/cockpit (Zipp), power meters (Quarq), connected head units (Hammerhead), pedals (TIME), and recurring wear/service parts across the installed base. The reason SRAM can charge premium prices is not only product quality; it is the combination of OEM spec relationships, aftermarket replacement cycles, system-level integration (especially AXS), and a multi-brand portfolio that increases switching friction and share of wallet. The main Week 2 issue is not finding revenue streams, but understanding which parts of the revenue base are most vulnerable to channel inventory cycles, premium trade-down, and software/support execution in a more connected product stack.
+SRAM makes money through a portfolio of performance cycling revenue streams led by core drivetrain and braking systems, supported by suspension (RockShox), wheels/cockpit (Zipp), power meters (Quarq), connected head units (Hammerhead), pedals (TIME), and recurring wear/service parts across the installed base. The reason SRAM charges premium prices is not only product quality. It is the combination of OEM spec relationships, aftermarket replacement cycles, system-level integration (especially AXS), and a multi-brand portfolio that increases switching friction and share of wallet. The key question for the AI playbook is which parts of the revenue base are most vulnerable to channel inventory cycles, premium trade-down, and software/support execution gaps in a more connected product stack.
 
 ## Sources
 
