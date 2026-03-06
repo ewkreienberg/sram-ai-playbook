@@ -1,9 +1,9 @@
 # SRAM Competitor Map
 
-Date: 2026-02-22  
+Date: 2026-02-22
 Company: SRAM LLC (private)
 
-## Short Answer
+## Overview
 
 SRAM competes across multiple cycling categories, so there is no single competitor set. The most important competitors depend on which SRAM business line you are analyzing (drivetrains, suspension, wheels, pedals, or cycling computers).
 
