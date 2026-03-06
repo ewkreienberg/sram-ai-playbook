@@ -1,4 +1,4 @@
-# SRAM Competitive Intelligence (Week 2)
+# SRAM Competitive Intelligence
 
 Date: 2026-02-28  
 Company: SRAM LLC (private)
@@ -197,39 +197,39 @@ Sources: [S1], [S14], [S15], [S16], [S17], [S18], [S19]
 - `Confirmed`: Glassdoor reviews are overall positive but repeatedly mention process rigor gaps, below-market pay concerns, and cross-functional execution friction. ([S54], [S55])
 - `Inference`: churn risk is less about raw product performance and more about confidence in lifecycle support.
 
-## 6) Strategic Vulnerabilities
+## 6) Strategic Risks for SRAM
 
 - `Confirmed`: private ownership limits financial transparency (segment margins, concentration, investment intensity). ([S8])
 - `Confirmed`: connected-product complaints (pairing/update/support) are persistent across channels. ([S48], [S50], [S51])
-- `Confirmed`: competitor pressure is intensifying at both high end (Campagnolo wireless 13-speed) and value/serviceability tiers (microSHIFT mechanical). ([S31], [S32])
-- `Inference`: SRAM is exposed to a "complexity tax" from managing premium hardware + embedded firmware + consumer software + global service.
+- `Confirmed`: competitor pressure is intensifying at both the high end (Campagnolo wireless 13-speed) and value/serviceability tiers (microSHIFT mechanical). ([S31], [S32])
+- `Inference`: SRAM carries a "complexity tax" from managing premium hardware + embedded firmware + consumer software + global service simultaneously.
 - `Speculative`: overextension risk rises as portfolio breadth expands faster than support consistency.
 
-## 7) Threat Assessment (Assuming "our market" = performance cycling components + connected cycling platform)
+## 7) Competitive Landscape Assessment
 
-### How aggressive are they in our market?
+### How SRAM competes in its markets
 
-- `Confirmed`: SRAM is actively aggressive: multi-line refreshes in 2025, expansion in distribution/service, and legal defense of product positioning. ([S14], [S29], [S56])
-- `Inference`: aggression is structural, not campaign-based; they push on product, channel, and ecosystem simultaneously.
+- `Confirmed`: SRAM runs a multi-front competitive posture: multi-line product refreshes in 2025, distribution and service expansion, and active legal defense of product positioning. ([S14], [S29], [S56])
+- `Inference`: SRAM's competitive approach is structural, not campaign-based. It pushes simultaneously on product, channel, and ecosystem.
 
-### What would it take to compete effectively?
+### What it takes to win in SRAM's markets
 
-- `Inference`: parity in shifting/braking alone is insufficient. A credible challenger needs:
-- strong dealer-service reliability,
-- clean software update/recovery UX,
-- competitive ecosystem compatibility,
-- and OEM commercial terms that reduce integration risk.
+- `Inference`: product parity in shifting or braking alone is insufficient for durable market leadership. Winning requires:
+- strong dealer-service reliability across geographies,
+- clean software update and recovery UX,
+- ecosystem compatibility leadership,
+- and OEM commercial terms that reduce integration risk for bike manufacturers.
 
-### What could SRAM do that would hurt us most?
+### Competitor moves that pose the greatest threat to SRAM
 
-- `Speculative`: bundle-led OEM wins across drivetrain + suspension + wheels + head unit.
-- `Speculative`: faster regional support coverage (like Italy/Baltics playbook) to lock dealer trust.
-- `Speculative`: accelerate proprietary API/data features that raise switching friction.
+- `Speculative`: Shimano accelerating connected-product investment to close the AXS/Hammerhead data advantage.
+- `Speculative`: bundle-led OEM wins by a competitor across drivetrain + suspension + head unit at lower integrated cost.
+- `Speculative`: a credible value-tier entrant (like microSHIFT) improving software and service to undercut SRAM's mid-market positioning.
 
 ### Early warning signals to monitor
 
-- New 2026+ distributor/service-center announcements. ([S28], [S29])
-- Connected-product hiring velocity and role seniority. ([S10], [S11], [S12])
+- New 2026+ distributor/service-center announcements from Shimano or Fox. ([S28], [S29])
+- Connected-product hiring velocity and role seniority at Shimano and Garmin.
 - App-store rating trajectory and complaint themes for SRAM AXS/Hammerhead Companion. ([S57], [S58])
 - OEM spec-share shifts on flagship bike launches (SRAM vs Shimano/Campagnolo mix).
 - New trademark filings attached to SRAM LLC before product launch windows. ([S40], [S41])
