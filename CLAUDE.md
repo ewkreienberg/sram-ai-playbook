@@ -56,3 +56,4 @@ Most contributors are non-technical MBA students. They are not engineers. Assume
 - Open a PR before merging into main.
 - Small, incremental commits. One logical change per commit.
 - All commits attributed to the committing team member only. No Co-Authored-By lines.
+- After a PR is merged, delete the remote feature branch to keep the repo clean.
