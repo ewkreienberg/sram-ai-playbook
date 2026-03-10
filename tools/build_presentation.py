@@ -115,16 +115,16 @@ def add_metric_card(slide, left, top, width, height, label, value,
     """Add a metric card with large number and label."""
     card = add_shape(slide, left, top, width, height, BG_CARD, DIVIDER, 0.05)
 
-    add_text_box(slide, left + Inches(0.3), top + Inches(0.25),
-                 width - Inches(0.6), Inches(0.4),
+    add_text_box(slide, left + Inches(0.3), top + Inches(0.15),
+                 width - Inches(0.6), Inches(0.3),
                  label, font_size=11, color=TEXT_DIM)
 
-    add_text_box(slide, left + Inches(0.3), top + Inches(0.55),
-                 width - Inches(0.6), Inches(0.6),
+    add_text_box(slide, left + Inches(0.3), top + Inches(0.45),
+                 width - Inches(0.6), Inches(0.5),
                  value, font_size=28, color=value_color, bold=True)
 
     if sub_text:
-        add_text_box(slide, left + Inches(0.3), top + Inches(1.15),
+        add_text_box(slide, left + Inches(0.3), top + Inches(1.0),
                      width - Inches(0.6), Inches(0.3),
                      sub_text, font_size=10, color=TEXT_LIGHT)
 
@@ -194,53 +194,51 @@ add_text_box(slide, Inches(1.5), Inches(6.2), Inches(10), Inches(0.5),
 slide = prs.slides.add_slide(blank_layout)
 set_slide_bg(slide, BG_DARK)
 
-add_text_box(slide, Inches(0.8), Inches(0.4), Inches(6), Inches(0.5),
+add_text_box(slide, Inches(0.8), Inches(0.3), Inches(6), Inches(0.3),
              "WHAT IS", font_size=12, color=ACCENT_BLUE, bold=True)
-add_text_box(slide, Inches(0.8), Inches(0.7), Inches(10), Inches(0.7),
+add_text_box(slide, Inches(0.8), Inches(0.65), Inches(10), Inches(0.5),
              "SRAM Today", font_size=32, color=TEXT_WHITE, bold=True)
-add_accent_line(slide, Inches(0.8), Inches(1.3), Inches(1.2), ACCENT_BLUE)
+add_accent_line(slide, Inches(0.8), Inches(1.2), Inches(1.2), ACCENT_BLUE)
 
 # Left side: company overview
-add_text_box(slide, Inches(0.8), Inches(1.6), Inches(5.5), Inches(1.0),
+add_text_box(slide, Inches(0.8), Inches(1.45), Inches(7.5), Inches(0.8),
              "Private, Chicago-founded, $1B+ revenue. The second-largest bicycle "
              "component manufacturer globally. Dominant in mountain bike. "
              "Seven brands, three channels, one connected ecosystem.",
              font_size=14, color=TEXT_LIGHT)
 
 # Metric cards row
-add_metric_card(slide, Inches(0.8), Inches(2.8), Inches(2.5), Inches(1.5),
+add_metric_card(slide, Inches(0.8), Inches(2.5), Inches(2.5), Inches(1.5),
                 "REVENUE", "$1B+", ACCENT_BLUE, "Private, not disclosed")
-add_metric_card(slide, Inches(3.5), Inches(2.8), Inches(2.5), Inches(1.5),
+add_metric_card(slide, Inches(3.5), Inches(2.5), Inches(2.5), Inches(1.5),
                 "EMPLOYEES", "3,000-5,000", ACCENT_BLUE, "Global operations")
-add_metric_card(slide, Inches(6.2), Inches(2.8), Inches(2.5), Inches(1.5),
+add_metric_card(slide, Inches(6.2), Inches(2.5), Inches(2.5), Inches(1.5),
                 "BRANDS", "7", ACCENT_BLUE, "Integrated portfolio")
-add_metric_card(slide, Inches(8.9), Inches(2.8), Inches(2.5), Inches(1.5),
+add_metric_card(slide, Inches(8.9), Inches(2.5), Inches(2.5), Inches(1.5),
                 "MTB POSITION", "#1", ACCENT_GREEN, "Market leader")
 
-# Revenue streams
-add_text_box(slide, Inches(0.8), Inches(4.6), Inches(6), Inches(0.4),
+# Revenue streams - left half only (no overlap with competitive card)
+add_text_box(slide, Inches(0.8), Inches(4.3), Inches(6), Inches(0.4),
              "Revenue Architecture", font_size=16, color=TEXT_WHITE, bold=True)
 
 streams = [
-    ("Drivetrains + Braking", "SRAM RED, Force, Rival, Eagle", "Core engine", ACCENT_BLUE),
-    ("Suspension", "RockShox forks and shocks", "High", ACCENT_BLUE),
-    ("Wheels + Cockpit", "Zipp performance components", "Medium", ACCENT_BLUE),
-    ("Connected Products", "Hammerhead Karoo, Quarq power", "Strategic", ACCENT_GREEN),
-    ("Wear Parts + Service", "Chains, cassettes, pads, rotors", "Recurring", ACCENT_GREEN),
-    ("Pedals + Adjacent", "TIME, Velocio, Ochain", "Growing", TEXT_DIM),
+    ("Drivetrains + Braking", "SRAM RED, Force, Rival, Eagle", ACCENT_BLUE),
+    ("Suspension", "RockShox forks and shocks", ACCENT_BLUE),
+    ("Wheels + Cockpit", "Zipp performance components", ACCENT_BLUE),
+    ("Connected Products", "Hammerhead Karoo, Quarq power", ACCENT_GREEN),
+    ("Wear Parts + Service", "Chains, cassettes, pads, rotors", ACCENT_GREEN),
+    ("Pedals + Adjacent", "TIME, Velocio, Ochain", TEXT_DIM),
 ]
 
-for i, (name, desc, importance, color) in enumerate(streams):
-    y = Inches(5.1) + Inches(i * 0.35)
-    add_text_box(slide, Inches(0.8), y, Inches(3), Inches(0.35),
+for i, (name, desc, color) in enumerate(streams):
+    y = Inches(4.8) + Inches(i * 0.38)
+    add_text_box(slide, Inches(0.8), y, Inches(3.2), Inches(0.35),
                  name, font_size=12, color=color, bold=True)
-    add_text_box(slide, Inches(4.0), y, Inches(4), Inches(0.35),
+    add_text_box(slide, Inches(4.2), y, Inches(4.0), Inches(0.35),
                  desc, font_size=11, color=TEXT_LIGHT)
-    add_text_box(slide, Inches(8.2), y, Inches(2), Inches(0.35),
-                 importance, font_size=11, color=TEXT_DIM)
 
-# Right side: competitive context
-add_bullet_card(slide, Inches(9.5), Inches(4.6), Inches(3.3), Inches(2.5),
+# Right side: competitive context (no overlap with revenue list)
+add_bullet_card(slide, Inches(8.9), Inches(4.3), Inches(3.8), Inches(2.8),
                 "Competitive Pressure",
                 ["Shimano: wireless gravel (GRX RX827)",
                  "Campagnolo: 13-speed premium",
@@ -254,13 +252,13 @@ add_bullet_card(slide, Inches(9.5), Inches(4.6), Inches(3.3), Inches(2.5),
 slide = prs.slides.add_slide(blank_layout)
 set_slide_bg(slide, BG_DARK)
 
-add_text_box(slide, Inches(0.8), Inches(0.4), Inches(6), Inches(0.5),
+add_text_box(slide, Inches(0.8), Inches(0.3), Inches(6), Inches(0.3),
              "WHAT COULD BE", font_size=12, color=ACCENT_GREEN, bold=True)
-add_text_box(slide, Inches(0.8), Inches(0.7), Inches(10), Inches(0.7),
+add_text_box(slide, Inches(0.8), Inches(0.65), Inches(10), Inches(0.5),
              "Where AI Fits Across SRAM", font_size=32, color=TEXT_WHITE, bold=True)
-add_accent_line(slide, Inches(0.8), Inches(1.3), Inches(1.2), ACCENT_GREEN)
+add_accent_line(slide, Inches(0.8), Inches(1.2), Inches(1.2), ACCENT_GREEN)
 
-add_text_box(slide, Inches(0.8), Inches(1.6), Inches(11), Inches(0.6),
+add_text_box(slide, Inches(0.8), Inches(1.45), Inches(11), Inches(0.5),
              "Four phases ordered by complexity, readiness, and time to return. "
              "Start bounded. Scale after proof.",
              font_size=14, color=TEXT_LIGHT)
@@ -325,13 +323,13 @@ add_text_box(slide, Inches(0.8), Inches(7.0), Inches(12), Inches(0.4),
 slide = prs.slides.add_slide(blank_layout)
 set_slide_bg(slide, BG_DARK)
 
-add_text_box(slide, Inches(0.8), Inches(0.4), Inches(6), Inches(0.5),
+add_text_box(slide, Inches(0.8), Inches(0.3), Inches(6), Inches(0.3),
              "BUT WHAT IS", font_size=12, color=ACCENT_RED, bold=True)
-add_text_box(slide, Inches(0.8), Inches(0.7), Inches(10), Inches(0.7),
+add_text_box(slide, Inches(0.8), Inches(0.65), Inches(10), Inches(0.5),
              "The Support Problem is Visible", font_size=32, color=TEXT_WHITE, bold=True)
-add_accent_line(slide, Inches(0.8), Inches(1.3), Inches(1.2), ACCENT_RED)
+add_accent_line(slide, Inches(0.8), Inches(1.2), Inches(1.2), ACCENT_RED)
 
-add_text_box(slide, Inches(0.8), Inches(1.6), Inches(11), Inches(0.6),
+add_text_box(slide, Inches(0.8), Inches(1.45), Inches(11), Inches(0.5),
              "SRAM's churn risk is driven by support quality, not product quality. "
              "Riders love SRAM components but struggle with firmware, compatibility, and warranty resolution.",
              font_size=14, color=TEXT_LIGHT)
@@ -381,11 +379,11 @@ add_bullet_card(slide, Inches(8.4), Inches(4.5), Inches(4.1), Inches(2.7),
 slide = prs.slides.add_slide(blank_layout)
 set_slide_bg(slide, BG_DARK)
 
-add_text_box(slide, Inches(0.8), Inches(0.4), Inches(6), Inches(0.5),
+add_text_box(slide, Inches(0.8), Inches(0.3), Inches(6), Inches(0.3),
              "WHAT COULD BE", font_size=12, color=ACCENT_GREEN, bold=True)
-add_text_box(slide, Inches(0.8), Inches(0.7), Inches(10), Inches(0.7),
+add_text_box(slide, Inches(0.8), Inches(0.65), Inches(10), Inches(0.5),
              "The 90-Day Support Pilot", font_size=32, color=TEXT_WHITE, bold=True)
-add_accent_line(slide, Inches(0.8), Inches(1.3), Inches(1.2), ACCENT_GREEN)
+add_accent_line(slide, Inches(0.8), Inches(1.2), Inches(1.2), ACCENT_GREEN)
 
 # Workflow steps
 add_text_box(slide, Inches(0.8), Inches(1.6), Inches(6), Inches(0.4),
@@ -454,11 +452,11 @@ add_bullet_card(slide, Inches(6.6), Inches(5.15), Inches(5.5), Inches(2.1),
 slide = prs.slides.add_slide(blank_layout)
 set_slide_bg(slide, BG_DARK)
 
-add_text_box(slide, Inches(0.8), Inches(0.4), Inches(6), Inches(0.5),
+add_text_box(slide, Inches(0.8), Inches(0.3), Inches(6), Inches(0.3),
              "MEASURING SUCCESS", font_size=12, color=ACCENT_BLUE, bold=True)
-add_text_box(slide, Inches(0.8), Inches(0.7), Inches(10), Inches(0.7),
+add_text_box(slide, Inches(0.8), Inches(0.65), Inches(10), Inches(0.5),
              "Pilot Metrics and Year-1 Financial Impact", font_size=32, color=TEXT_WHITE, bold=True)
-add_accent_line(slide, Inches(0.8), Inches(1.3), Inches(1.2), ACCENT_BLUE)
+add_accent_line(slide, Inches(0.8), Inches(1.2), Inches(1.2), ACCENT_BLUE)
 
 # Pilot metrics
 add_text_box(slide, Inches(0.8), Inches(1.6), Inches(6), Inches(0.4),
@@ -516,13 +514,13 @@ add_multiline_text(slide, Inches(7.5), Inches(3.7), Inches(5), Inches(3.5),
 slide = prs.slides.add_slide(blank_layout)
 set_slide_bg(slide, BG_DARK)
 
-add_text_box(slide, Inches(0.8), Inches(0.4), Inches(6), Inches(0.5),
+add_text_box(slide, Inches(0.8), Inches(0.3), Inches(6), Inches(0.3),
              "WHAT COULD BE", font_size=12, color=ACCENT_GREEN, bold=True)
-add_text_box(slide, Inches(0.8), Inches(0.7), Inches(10), Inches(0.7),
+add_text_box(slide, Inches(0.8), Inches(0.65), Inches(10), Inches(0.5),
              "SRAM 2031 - From Hardware to Intelligence", font_size=32, color=TEXT_WHITE, bold=True)
-add_accent_line(slide, Inches(0.8), Inches(1.3), Inches(1.2), ACCENT_GREEN)
+add_accent_line(slide, Inches(0.8), Inches(1.2), Inches(1.2), ACCENT_GREEN)
 
-add_text_box(slide, Inches(0.8), Inches(1.6), Inches(11), Inches(0.6),
+add_text_box(slide, Inches(0.8), Inches(1.45), Inches(11), Inches(0.5),
              "SRAM's full product stack creates a data moat no competitor can replicate. "
              "The rider who buys SRAM drivetrain, RockShox suspension, Quarq power, and Hammerhead "
              "computer gets a unified intelligence layer impossible with mixed components.",
@@ -577,11 +575,11 @@ add_text_box(slide, Inches(1.3), Inches(6.85), Inches(10.5), Inches(0.4),
 slide = prs.slides.add_slide(blank_layout)
 set_slide_bg(slide, BG_DARK)
 
-add_text_box(slide, Inches(0.8), Inches(0.4), Inches(6), Inches(0.5),
+add_text_box(slide, Inches(0.8), Inches(0.3), Inches(6), Inches(0.3),
              "THE DECISION", font_size=12, color=ACCENT_BLUE, bold=True)
-add_text_box(slide, Inches(0.8), Inches(0.7), Inches(10), Inches(0.7),
+add_text_box(slide, Inches(0.8), Inches(0.65), Inches(10), Inches(0.5),
              "Three Actions for SRAM's CEO", font_size=32, color=TEXT_WHITE, bold=True)
-add_accent_line(slide, Inches(0.8), Inches(1.3), Inches(1.2), ACCENT_BLUE)
+add_accent_line(slide, Inches(0.8), Inches(1.2), Inches(1.2), ACCENT_BLUE)
 
 actions = [
     ("1", "Launch the 90-Day Support Pilot",
@@ -602,38 +600,36 @@ actions = [
 ]
 
 for i, (num, title, desc, color) in enumerate(actions):
-    top = Inches(1.8) + Inches(i * 1.8)
+    top = Inches(1.5) + Inches(i * 1.65)
 
-    card = add_shape(slide, Inches(0.8), top, Inches(11.5), Inches(1.5), BG_CARD, color, 0.03)
+    card = add_shape(slide, Inches(0.8), top, Inches(11.5), Inches(1.4), BG_CARD, color, 0.03)
 
     # Number
     circle = slide.shapes.add_shape(
-        MSO_SHAPE.OVAL, Inches(1.2), top + Inches(0.35), Inches(0.6), Inches(0.6)
+        MSO_SHAPE.OVAL, Inches(1.2), top + Inches(0.3), Inches(0.55), Inches(0.55)
     )
     circle.fill.solid()
     circle.fill.fore_color.rgb = color
     circle.line.fill.background()
     tf = circle.text_frame
     tf.paragraphs[0].text = num
-    tf.paragraphs[0].font.size = Pt(22)
+    tf.paragraphs[0].font.size = Pt(20)
     tf.paragraphs[0].font.color.rgb = BG_DARK
     tf.paragraphs[0].font.bold = True
     tf.paragraphs[0].alignment = PP_ALIGN.CENTER
     tf.word_wrap = False
 
-    add_text_box(slide, Inches(2.2), top + Inches(0.2), Inches(9.5), Inches(0.5),
-                 title, font_size=20, color=TEXT_WHITE, bold=True)
-    add_text_box(slide, Inches(2.2), top + Inches(0.7), Inches(9.5), Inches(0.7),
-                 desc, font_size=13, color=TEXT_LIGHT)
+    add_text_box(slide, Inches(2.1), top + Inches(0.15), Inches(9.5), Inches(0.45),
+                 title, font_size=18, color=TEXT_WHITE, bold=True)
+    add_text_box(slide, Inches(2.1), top + Inches(0.6), Inches(9.5), Inches(0.65),
+                 desc, font_size=12, color=TEXT_LIGHT)
 
-# Bottom line
-add_shape(slide, Inches(0.8), Inches(7.0), Inches(11.5), Inches(0.01), DIVIDER)
-
-add_multiline_text(slide, Inches(0.8), Inches(6.3), Inches(11.5), Inches(0.7), [
-    ("Expected Year-1 return: 3.8x  |  Downside bounded by 90-day pilot scope  |  "
-     "Upside scales with SRAM's unique data advantage",
-     13, ACCENT_GREEN, True),
-])
+# Bottom summary - positioned below the three cards (1.5 + 3*1.65 = 6.45, cards end at 6.45+1.4=~6.55)
+add_shape(slide, Inches(0.8), Inches(6.75), Inches(11.5), Inches(0.5), BG_CARD, ACCENT_GREEN, 0.1)
+add_text_box(slide, Inches(1.3), Inches(6.8), Inches(10.5), Inches(0.4),
+             "Expected Year-1 return: 3.8x  |  Downside bounded by 90-day pilot  |  "
+             "Upside scales with SRAM's unique data advantage",
+             font_size=13, color=ACCENT_GREEN, bold=True, alignment=PP_ALIGN.CENTER)
 
 
 # ----------------------------------------------------------
