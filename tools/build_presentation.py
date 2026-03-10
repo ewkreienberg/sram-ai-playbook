@@ -5,6 +5,8 @@ Build the SRAM AI Adoption Playbook presentation.
 8-minute deck using Duarte's "What Is / What Could Be" contrast pattern
 with a T-shaped structure (wide overview -> deep dive on support).
 
+Color scheme derived from sram.com brand palette.
+
 Usage:
     python3 tools/build_presentation.py
 
@@ -13,623 +15,508 @@ Output:
 """
 
 from pptx import Presentation
-from pptx.util import Inches, Pt, Emu
+from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
+from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_SHAPE
 import os
 
-# --- Color palette (dark executive theme) ---
-BG_DARK = RGBColor(0x0F, 0x17, 0x2A)       # Deep navy background
-BG_CARD = RGBColor(0x16, 0x21, 0x3A)       # Card/section background
-ACCENT_BLUE = RGBColor(0x38, 0x9F, 0xF5)   # Primary accent
-ACCENT_GREEN = RGBColor(0x34, 0xD3, 0x99)  # Success/positive
-ACCENT_AMBER = RGBColor(0xFB, 0xBF, 0x24)  # Warning/attention
-ACCENT_RED = RGBColor(0xEF, 0x44, 0x44)    # Alert/negative
-TEXT_WHITE = RGBColor(0xF8, 0xFA, 0xFC)     # Primary text
-TEXT_LIGHT = RGBColor(0x94, 0xA3, 0xB8)     # Secondary text
-TEXT_DIM = RGBColor(0x64, 0x74, 0x8B)       # Tertiary text
-DIVIDER = RGBColor(0x1E, 0x29, 0x3B)        # Subtle divider lines
+# --- SRAM brand palette (extracted from sram.com) ---
+SRAM_BLACK = RGBColor(0x1C, 0x1C, 0x1E)    # Primary background
+SRAM_RED = RGBColor(0xE5, 0x19, 0x37)       # Brand red (#E51937)
+SRAM_WHITE = RGBColor(0xFF, 0xFF, 0xFF)      # Primary text
+SRAM_GRAY_LIGHT = RGBColor(0xD9, 0xDB, 0xD8) # Page background gray
+SRAM_GRAY_MID = RGBColor(0x76, 0x76, 0x76)   # Secondary text (#767676)
+SRAM_GRAY_DARK = RGBColor(0x2A, 0x2A, 0x2C)  # Card backgrounds
+SRAM_GRAY_BORDER = RGBColor(0x3A, 0x3A, 0x3C) # Subtle borders
+SRAM_RED_LIGHT = RGBColor(0xE3, 0x47, 0x5E)  # Lighter red accent
 
 SLIDE_WIDTH = Inches(13.333)
 SLIDE_HEIGHT = Inches(7.5)
 
+# Shorthand
+BG = SRAM_BLACK
+CARD = SRAM_GRAY_DARK
+RED = SRAM_RED
+WHITE = SRAM_WHITE
+GRAY = SRAM_GRAY_MID
+BORDER = SRAM_GRAY_BORDER
 
-def set_slide_bg(slide, color):
-    """Set solid background color for a slide."""
+
+def set_slide_bg(slide, color=BG):
     bg = slide.background
-    fill = bg.fill
-    fill.solid()
-    fill.fore_color.rgb = color
+    bg.fill.solid()
+    bg.fill.fore_color.rgb = color
 
 
-def add_shape(slide, left, top, width, height, fill_color, border_color=None, corner_radius=None):
-    """Add a rounded rectangle shape."""
-    shape = slide.shapes.add_shape(
-        MSO_SHAPE.ROUNDED_RECTANGLE, left, top, width, height
-    )
+def add_rect(slide, left, top, width, height, fill=CARD, border=None, radius=0.04):
+    shape = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, top, width, height)
     shape.fill.solid()
-    shape.fill.fore_color.rgb = fill_color
-    if border_color:
-        shape.line.color.rgb = border_color
+    shape.fill.fore_color.rgb = fill
+    if border:
+        shape.line.color.rgb = border
         shape.line.width = Pt(1)
     else:
         shape.line.fill.background()
-    if corner_radius is not None:
-        shape.adjustments[0] = corner_radius
+    shape.adjustments[0] = radius
     return shape
 
 
-def add_text_box(slide, left, top, width, height, text, font_size=14,
-                 color=TEXT_WHITE, bold=False, alignment=PP_ALIGN.LEFT,
-                 font_name="Calibri"):
-    """Add a text box with formatted text."""
-    txBox = slide.shapes.add_textbox(left, top, width, height)
-    tf = txBox.text_frame
-    tf.word_wrap = True
-    p = tf.paragraphs[0]
-    p.text = text
-    p.font.size = Pt(font_size)
+def text(slide, left, top, w, h, content, size=14, color=WHITE, bold=False, align=PP_ALIGN.LEFT):
+    box = slide.shapes.add_textbox(left, top, w, h)
+    box.text_frame.word_wrap = True
+    p = box.text_frame.paragraphs[0]
+    p.text = content
+    p.font.size = Pt(size)
     p.font.color.rgb = color
     p.font.bold = bold
-    p.font.name = font_name
-    p.alignment = alignment
-    return txBox
+    p.font.name = "Calibri"
+    p.alignment = align
+    return box
 
 
-def add_multiline_text(slide, left, top, width, height, lines, font_size=14,
-                       color=TEXT_WHITE, line_spacing=1.3, font_name="Calibri"):
-    """Add a text box with multiple styled lines.
-
-    lines: list of tuples (text, font_size, color, bold)
-    """
-    txBox = slide.shapes.add_textbox(left, top, width, height)
-    tf = txBox.text_frame
+def multitext(slide, left, top, w, h, lines, spacing=1.3):
+    box = slide.shapes.add_textbox(left, top, w, h)
+    tf = box.text_frame
     tf.word_wrap = True
-    for i, line_data in enumerate(lines):
-        if len(line_data) == 4:
-            text, fs, col, bld = line_data
-        elif len(line_data) == 3:
-            text, fs, col = line_data
-            bld = False
-        else:
-            text, fs = line_data
-            col = color
-            bld = False
-
-        if i == 0:
-            p = tf.paragraphs[0]
-        else:
-            p = tf.add_paragraph()
-        p.text = text
-        p.font.size = Pt(fs)
-        p.font.color.rgb = col
-        p.font.bold = bld
-        p.font.name = font_name
-        p.space_after = Pt(fs * (line_spacing - 1) * 2)
-    return txBox
+    for i, (t, size, color, bold) in enumerate(lines):
+        p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+        p.text = t
+        p.font.size = Pt(size)
+        p.font.color.rgb = color
+        p.font.bold = bold
+        p.font.name = "Calibri"
+        p.space_after = Pt(size * (spacing - 1) * 2)
+    return box
 
 
-def add_metric_card(slide, left, top, width, height, label, value,
-                    value_color=ACCENT_BLUE, sub_text=None):
-    """Add a metric card with large number and label."""
-    card = add_shape(slide, left, top, width, height, BG_CARD, DIVIDER, 0.05)
-
-    add_text_box(slide, left + Inches(0.3), top + Inches(0.15),
-                 width - Inches(0.6), Inches(0.3),
-                 label, font_size=11, color=TEXT_DIM)
-
-    add_text_box(slide, left + Inches(0.3), top + Inches(0.45),
-                 width - Inches(0.6), Inches(0.5),
-                 value, font_size=28, color=value_color, bold=True)
-
-    if sub_text:
-        add_text_box(slide, left + Inches(0.3), top + Inches(1.0),
-                     width - Inches(0.6), Inches(0.3),
-                     sub_text, font_size=10, color=TEXT_LIGHT)
+def slide_header(slide, label, title, label_color=RED):
+    text(slide, Inches(0.8), Inches(0.3), Inches(6), Inches(0.25),
+         label, size=11, color=label_color, bold=True)
+    text(slide, Inches(0.8), Inches(0.6), Inches(11), Inches(0.5),
+         title, size=32, color=WHITE, bold=True)
+    # Accent line
+    line = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE,
+                                  Inches(0.8), Inches(1.15), Inches(1.0), Pt(2))
+    line.fill.solid()
+    line.fill.fore_color.rgb = label_color
+    line.line.fill.background()
 
 
-def add_bullet_card(slide, left, top, width, height, title, bullets,
-                    title_color=ACCENT_BLUE, bullet_color=TEXT_LIGHT):
-    """Add a card with title and bullet points."""
-    card = add_shape(slide, left, top, width, height, BG_CARD, DIVIDER, 0.05)
-
-    add_text_box(slide, left + Inches(0.3), top + Inches(0.2),
-                 width - Inches(0.6), Inches(0.4),
-                 title, font_size=16, color=title_color, bold=True)
-
-    lines = [(f"\u2022  {b}", 12, bullet_color) for b in bullets]
-    add_multiline_text(slide, left + Inches(0.3), top + Inches(0.65),
-                       width - Inches(0.6), height - Inches(0.85),
-                       lines, line_spacing=1.5)
+def metric_card(slide, left, top, w, h, label, value, color=RED, sub=None):
+    add_rect(slide, left, top, w, h, CARD, BORDER)
+    text(slide, left + Inches(0.25), top + Inches(0.15), w - Inches(0.5), Inches(0.25),
+         label, size=10, color=GRAY)
+    text(slide, left + Inches(0.25), top + Inches(0.4), w - Inches(0.5), Inches(0.45),
+         value, size=26, color=color, bold=True)
+    if sub:
+        text(slide, left + Inches(0.25), top + Inches(0.9), w - Inches(0.5), Inches(0.25),
+             sub, size=9, color=GRAY)
 
 
-def add_accent_line(slide, left, top, width, color=ACCENT_BLUE):
-    """Add a thin horizontal accent line."""
-    shape = slide.shapes.add_shape(
-        MSO_SHAPE.RECTANGLE, left, top, width, Pt(3)
-    )
-    shape.fill.solid()
-    shape.fill.fore_color.rgb = color
-    shape.line.fill.background()
-    return shape
+def bullet_list(slide, left, top, w, h, items, color=SRAM_GRAY_LIGHT, size=12):
+    lines = [(f"\u2022  {item}", size, color, False) for item in items]
+    multitext(slide, left, top, w, h, lines, spacing=1.5)
 
 
 # ============================================================
-# BUILD THE PRESENTATION
+# BUILD
 # ============================================================
 
 prs = Presentation()
 prs.slide_width = SLIDE_WIDTH
 prs.slide_height = SLIDE_HEIGHT
-
-# Use blank layout
-blank_layout = prs.slide_layouts[6]
+blank = prs.slide_layouts[6]
 
 
 # ----------------------------------------------------------
 # SLIDE 1: Title
 # ----------------------------------------------------------
-slide = prs.slides.add_slide(blank_layout)
-set_slide_bg(slide, BG_DARK)
+slide = prs.slides.add_slide(blank)
+set_slide_bg(slide)
 
-add_accent_line(slide, Inches(1.5), Inches(2.5), Inches(2), ACCENT_BLUE)
+# Red accent bar
+line = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE,
+                              Inches(1.5), Inches(2.6), Inches(1.5), Pt(3))
+line.fill.solid()
+line.fill.fore_color.rgb = RED
+line.line.fill.background()
 
-add_multiline_text(slide, Inches(1.5), Inches(2.7), Inches(10), Inches(3), [
-    ("SRAM LLC", 42, TEXT_WHITE, True),
-    ("AI Adoption Playbook", 28, ACCENT_BLUE, False),
-    ("", 14, TEXT_DIM, False),
-    ("Prepared for Executive Leadership", 14, TEXT_LIGHT, False),
-    ("March 2026", 14, TEXT_DIM, False),
+multitext(slide, Inches(1.5), Inches(2.8), Inches(10), Inches(2.5), [
+    ("SRAM LLC", 44, WHITE, True),
+    ("AI Adoption Playbook", 26, RED, False),
+    ("", 12, GRAY, False),
+    ("Prepared for Executive Leadership", 14, SRAM_GRAY_LIGHT, False),
+    ("March 2026", 13, GRAY, False),
 ])
 
-add_text_box(slide, Inches(1.5), Inches(6.2), Inches(10), Inches(0.5),
-             "AIML 950  |  Human and Machine Intelligence  |  Northwestern Kellogg",
-             font_size=11, color=TEXT_DIM)
+text(slide, Inches(1.5), Inches(6.3), Inches(10), Inches(0.4),
+     "AIML 950  |  Human and Machine Intelligence  |  Northwestern Kellogg",
+     size=10, color=GRAY)
 
 
 # ----------------------------------------------------------
-# SLIDE 2: "What Is" - SRAM Today
+# SLIDE 2: SRAM Today
 # ----------------------------------------------------------
-slide = prs.slides.add_slide(blank_layout)
-set_slide_bg(slide, BG_DARK)
+slide = prs.slides.add_slide(blank)
+set_slide_bg(slide)
+slide_header(slide, "WHAT IS", "SRAM Today")
 
-add_text_box(slide, Inches(0.8), Inches(0.3), Inches(6), Inches(0.3),
-             "WHAT IS", font_size=12, color=ACCENT_BLUE, bold=True)
-add_text_box(slide, Inches(0.8), Inches(0.65), Inches(10), Inches(0.5),
-             "SRAM Today", font_size=32, color=TEXT_WHITE, bold=True)
-add_accent_line(slide, Inches(0.8), Inches(1.2), Inches(1.2), ACCENT_BLUE)
+text(slide, Inches(0.8), Inches(1.4), Inches(11), Inches(0.7),
+     "Private, Chicago-founded, $1B+ revenue. The second-largest bicycle component "
+     "manufacturer globally. Dominant in mountain bike. Seven brands, three channels, "
+     "one connected ecosystem.",
+     size=14, color=SRAM_GRAY_LIGHT)
 
-# Left side: company overview
-add_text_box(slide, Inches(0.8), Inches(1.45), Inches(7.5), Inches(0.8),
-             "Private, Chicago-founded, $1B+ revenue. The second-largest bicycle "
-             "component manufacturer globally. Dominant in mountain bike. "
-             "Seven brands, three channels, one connected ecosystem.",
-             font_size=14, color=TEXT_LIGHT)
+# Metrics row
+metrics_data = [
+    ("REVENUE", "$1B+", "Private, not disclosed"),
+    ("EMPLOYEES", "3,000-5,000", "Global operations"),
+    ("BRANDS", "7", "Integrated portfolio"),
+    ("MTB POSITION", "#1", "Market leader"),
+]
+for i, (label, value, sub) in enumerate(metrics_data):
+    metric_card(slide, Inches(0.8 + i * 2.85), Inches(2.4), Inches(2.6), Inches(1.3),
+                label, value, RED, sub)
 
-# Metric cards row
-add_metric_card(slide, Inches(0.8), Inches(2.5), Inches(2.5), Inches(1.5),
-                "REVENUE", "$1B+", ACCENT_BLUE, "Private, not disclosed")
-add_metric_card(slide, Inches(3.5), Inches(2.5), Inches(2.5), Inches(1.5),
-                "EMPLOYEES", "3,000-5,000", ACCENT_BLUE, "Global operations")
-add_metric_card(slide, Inches(6.2), Inches(2.5), Inches(2.5), Inches(1.5),
-                "BRANDS", "7", ACCENT_BLUE, "Integrated portfolio")
-add_metric_card(slide, Inches(8.9), Inches(2.5), Inches(2.5), Inches(1.5),
-                "MTB POSITION", "#1", ACCENT_GREEN, "Market leader")
-
-# Revenue streams - left half only (no overlap with competitive card)
-add_text_box(slide, Inches(0.8), Inches(4.3), Inches(6), Inches(0.4),
-             "Revenue Architecture", font_size=16, color=TEXT_WHITE, bold=True)
+# Revenue streams (clean two-column list)
+text(slide, Inches(0.8), Inches(4.0), Inches(5), Inches(0.35),
+     "Revenue Architecture", size=16, color=WHITE, bold=True)
 
 streams = [
-    ("Drivetrains + Braking", "SRAM RED, Force, Rival, Eagle", ACCENT_BLUE),
-    ("Suspension", "RockShox forks and shocks", ACCENT_BLUE),
-    ("Wheels + Cockpit", "Zipp performance components", ACCENT_BLUE),
-    ("Connected Products", "Hammerhead Karoo, Quarq power", ACCENT_GREEN),
-    ("Wear Parts + Service", "Chains, cassettes, pads, rotors", ACCENT_GREEN),
-    ("Pedals + Adjacent", "TIME, Velocio, Ochain", TEXT_DIM),
+    ("Drivetrains + Braking", "SRAM RED, Force, Rival, Eagle"),
+    ("Suspension", "RockShox forks and shocks"),
+    ("Wheels + Cockpit", "Zipp performance components"),
+    ("Connected Products", "Hammerhead Karoo, Quarq power"),
+    ("Wear Parts + Service", "Chains, cassettes, pads, rotors"),
+    ("Pedals + Adjacent", "TIME, Velocio, Ochain"),
 ]
 
-for i, (name, desc, color) in enumerate(streams):
-    y = Inches(4.8) + Inches(i * 0.38)
-    add_text_box(slide, Inches(0.8), y, Inches(3.2), Inches(0.35),
-                 name, font_size=12, color=color, bold=True)
-    add_text_box(slide, Inches(4.2), y, Inches(4.0), Inches(0.35),
-                 desc, font_size=11, color=TEXT_LIGHT)
+for i, (name, desc) in enumerate(streams):
+    y = Inches(4.5) + Inches(i * 0.4)
+    text(slide, Inches(0.8), y, Inches(3.2), Inches(0.35),
+         name, size=12, color=WHITE, bold=True)
+    text(slide, Inches(4.2), y, Inches(4.5), Inches(0.35),
+         desc, size=11, color=GRAY)
 
-# Right side: competitive context (no overlap with revenue list)
-add_bullet_card(slide, Inches(8.9), Inches(4.3), Inches(3.8), Inches(2.8),
-                "Competitive Pressure",
-                ["Shimano: wireless gravel (GRX RX827)",
-                 "Campagnolo: 13-speed premium",
-                 "microSHIFT: value mechanical alternative"],
-                ACCENT_AMBER)
+# Competitive context (right side)
+add_rect(slide, Inches(9.2), Inches(4.0), Inches(3.5), Inches(3.0), CARD, BORDER)
+text(slide, Inches(9.5), Inches(4.15), Inches(3.0), Inches(0.35),
+     "Competitive Pressure", size=14, color=SRAM_RED_LIGHT, bold=True)
+bullet_list(slide, Inches(9.5), Inches(4.6), Inches(3.0), Inches(2.2),
+            ["Shimano: wireless gravel (GRX RX827)",
+             "Campagnolo: 13-speed premium",
+             "microSHIFT: value mechanical"], SRAM_GRAY_LIGHT, 11)
 
 
 # ----------------------------------------------------------
-# SLIDE 3: "What Could Be" - Where AI Fits (The Wide View)
+# SLIDE 3: Initiative Map (NEW - the "vast web of opportunity")
 # ----------------------------------------------------------
-slide = prs.slides.add_slide(blank_layout)
-set_slide_bg(slide, BG_DARK)
+slide = prs.slides.add_slide(blank)
+set_slide_bg(slide)
+slide_header(slide, "THE OPPORTUNITY", "AI Initiatives Across SRAM")
 
-add_text_box(slide, Inches(0.8), Inches(0.3), Inches(6), Inches(0.3),
-             "WHAT COULD BE", font_size=12, color=ACCENT_GREEN, bold=True)
-add_text_box(slide, Inches(0.8), Inches(0.65), Inches(10), Inches(0.5),
-             "Where AI Fits Across SRAM", font_size=32, color=TEXT_WHITE, bold=True)
-add_accent_line(slide, Inches(0.8), Inches(1.2), Inches(1.2), ACCENT_GREEN)
+text(slide, Inches(0.8), Inches(1.4), Inches(11), Inches(0.5),
+     "Every function at SRAM has AI potential. The map below shows initiatives by "
+     "business area and the specific problem each one solves.",
+     size=14, color=SRAM_GRAY_LIGHT)
 
-add_text_box(slide, Inches(0.8), Inches(1.45), Inches(11), Inches(0.5),
-             "Four phases ordered by complexity, readiness, and time to return. "
-             "Start bounded. Scale after proof.",
-             font_size=14, color=TEXT_LIGHT)
-
-# Phase cards
-phases = [
-    ("PHASE 1", "0-90 Days", "Immediate Wins",
-     ["AI coding tools for engineering", "Support + warranty automation",
-      "Individual productivity (notes, email)"],
-     ACCENT_GREEN, "Low complexity, high visibility"),
-    ("PHASE 2", "90-180 Days", "Data Foundation",
-     ["Unified data layer (no ERP today)", "Demand forecasting",
-      "Customer analytics (Shopify + telemetry)"],
-     ACCENT_BLUE, "Requires data infrastructure"),
-    ("PHASE 3", "180-365 Days", "Revenue Acceleration",
-     ["OEM proposal automation", "Compatible part recommendations",
-      "Documentation + translation"],
-     ACCENT_BLUE, "Builds on Phase 2 data"),
-    ("PHASE 4", "Year 2+", "AI-First Culture",
-     ["AXS Intelligence Platform", "Generative design + R&D",
-      "AI-tuned component performance"],
-     ACCENT_AMBER, "Transformation territory"),
+# Grid of initiative cards: 3 columns x 4 rows
+initiatives = [
+    # (area, initiative, problem)
+    ("SUPPORT", "AI Support Agent", "70% of dealer questions are repetitive"),
+    ("SUPPORT", "Warranty Automation", "Fraudulent and mis-filed claims cost time"),
+    ("SUPPORT", "Compatibility Assistant", "Riders get wrong parts, return them"),
+    ("SUPPLY CHAIN", "Demand Forecasting", "No forecasting system exists today"),
+    ("SUPPLY CHAIN", "Inventory Allocation", "Stockouts and rush shipping losses"),
+    ("SUPPLY CHAIN", "Customer Analytics", "Shopify data is siloed, unused"),
+    ("SALES", "OEM Proposal Automation", "Proposal cycles are slow, manual"),
+    ("SALES", "Part Recommendations", "No guided upsell at point of service"),
+    ("SALES", "DTC Personalization", "Velocio has no targeting capability"),
+    ("ENGINEERING", "Generative Design", "Physical testing is slow and expensive"),
+    ("ENGINEERING", "AXS Intelligence", "Telemetry data is collected but unused"),
+    ("ENGINEERING", "AI-Tuned Components", "Suspension and shifting are static"),
 ]
 
-for i, (phase, timeline, title, bullets, color, note) in enumerate(phases):
-    left = Inches(0.8) + Inches(i * 3.1)
-    card_w = Inches(2.85)
+for i, (area, initiative, problem) in enumerate(initiatives):
+    col = i % 3
+    row = i // 3
+    left = Inches(0.8) + Inches(col * 4.1)
+    top = Inches(2.2) + Inches(row * 1.25)
+    card_w = Inches(3.85)
+    card_h = Inches(1.05)
 
-    card = add_shape(slide, left, Inches(2.3), card_w, Inches(4.5), BG_CARD, DIVIDER, 0.03)
+    add_rect(slide, left, top, card_w, card_h, CARD, BORDER)
+    text(slide, left + Inches(0.2), top + Inches(0.08), Inches(1.5), Inches(0.2),
+         area, size=8, color=RED, bold=True)
+    text(slide, left + Inches(0.2), top + Inches(0.3), card_w - Inches(0.4), Inches(0.3),
+         initiative, size=13, color=WHITE, bold=True)
+    text(slide, left + Inches(0.2), top + Inches(0.65), card_w - Inches(0.4), Inches(0.35),
+         problem, size=10, color=GRAY)
 
-    # Phase label + timeline
-    add_text_box(slide, left + Inches(0.2), Inches(2.45), Inches(1.2), Inches(0.3),
-                 phase, font_size=11, color=color, bold=True)
-    add_text_box(slide, left + Inches(1.5), Inches(2.45), Inches(1.2), Inches(0.3),
-                 timeline, font_size=10, color=TEXT_DIM, alignment=PP_ALIGN.RIGHT)
-
-    # Title
-    add_text_box(slide, left + Inches(0.2), Inches(2.8), card_w - Inches(0.4), Inches(0.5),
-                 title, font_size=18, color=TEXT_WHITE, bold=True)
-
-    add_accent_line(slide, left + Inches(0.2), Inches(3.3), Inches(0.8), color)
-
-    # Bullets
-    lines = [(f"\u2022  {b}", 12, TEXT_LIGHT) for b in bullets]
-    add_multiline_text(slide, left + Inches(0.2), Inches(3.5),
-                       card_w - Inches(0.4), Inches(2.2),
-                       lines, line_spacing=1.6)
-
-    # Bottom note
-    add_text_box(slide, left + Inches(0.2), Inches(5.8), card_w - Inches(0.4), Inches(0.5),
-                 note, font_size=9, color=TEXT_DIM)
-
-# Arrow / focus indicator
-add_text_box(slide, Inches(0.8), Inches(7.0), Inches(12), Inches(0.4),
-             "\u25B6  We recommend starting with Phase 1 Support Automation as the deep-dive pilot",
-             font_size=13, color=ACCENT_GREEN, bold=True)
+# Bottom callout
+add_rect(slide, Inches(0.8), Inches(7.0), Inches(11.7), Inches(0.35), CARD, RED, 0.1)
+text(slide, Inches(1.2), Inches(7.03), Inches(11.0), Inches(0.3),
+     "We will focus on one area with the highest uplift and fastest proof: Customer and Dealer Support",
+     size=12, color=RED, bold=True, align=PP_ALIGN.CENTER)
 
 
 # ----------------------------------------------------------
-# SLIDE 4: "But What Is" - The Support Problem
+# SLIDE 4: The Support Problem (deep dive begins)
 # ----------------------------------------------------------
-slide = prs.slides.add_slide(blank_layout)
-set_slide_bg(slide, BG_DARK)
+slide = prs.slides.add_slide(blank)
+set_slide_bg(slide)
+slide_header(slide, "THE PROBLEM", "Support Quality Drives Churn, Not Product Quality")
 
-add_text_box(slide, Inches(0.8), Inches(0.3), Inches(6), Inches(0.3),
-             "BUT WHAT IS", font_size=12, color=ACCENT_RED, bold=True)
-add_text_box(slide, Inches(0.8), Inches(0.65), Inches(10), Inches(0.5),
-             "The Support Problem is Visible", font_size=32, color=TEXT_WHITE, bold=True)
-add_accent_line(slide, Inches(0.8), Inches(1.2), Inches(1.2), ACCENT_RED)
+text(slide, Inches(0.8), Inches(1.4), Inches(11), Inches(0.5),
+     "Riders love SRAM components but struggle with firmware, compatibility, "
+     "and warranty resolution. The data is clear.",
+     size=14, color=SRAM_GRAY_LIGHT)
 
-add_text_box(slide, Inches(0.8), Inches(1.45), Inches(11), Inches(0.5),
-             "SRAM's churn risk is driven by support quality, not product quality. "
-             "Riders love SRAM components but struggle with firmware, compatibility, and warranty resolution.",
-             font_size=14, color=TEXT_LIGHT)
+# Three big metrics
+metric_card(slide, Inches(0.8), Inches(2.2), Inches(3.6), Inches(1.5),
+            "TRUSTPILOT RATING", "1.6 / 5.0", SRAM_RED_LIGHT,
+            "Driven by warranty and support friction")
 
-# Pain point cards
-add_metric_card(slide, Inches(0.8), Inches(2.5), Inches(3.5), Inches(1.6),
-                "TRUSTPILOT RATING", "1.6 / 5.0", ACCENT_RED,
-                "Driven by warranty and support friction")
+metric_card(slide, Inches(4.7), Inches(2.2), Inches(3.6), Inches(1.5),
+            "DEALER QUESTIONS AUTOMATABLE", "~70%", WHITE,
+            "Follow repeatable patterns")
 
-add_metric_card(slide, Inches(4.6), Inches(2.5), Inches(3.5), Inches(1.6),
-                "DEALER QUESTIONS AUTOMATABLE", "~70%", ACCENT_GREEN,
-                "Follow repeatable patterns")
+metric_card(slide, Inches(8.6), Inches(2.2), Inches(4.0), Inches(1.5),
+            "TOP COMPLAINTS", "Firmware + Pairing", SRAM_RED_LIGHT,
+            "Reddit 2024-2025: shifting, updates, compatibility")
 
-add_metric_card(slide, Inches(8.4), Inches(2.5), Inches(4.1), Inches(1.6),
-                "TOP COMPLAINT THEMES", "Firmware + Pairing", ACCENT_AMBER,
-                "Reddit 2024-2025: shifting, updates, compatibility")
+# Two columns: pain vs. advantage
+add_rect(slide, Inches(0.8), Inches(4.1), Inches(5.5), Inches(3.0), CARD, BORDER)
+text(slide, Inches(1.1), Inches(4.25), Inches(4.5), Inches(0.35),
+     "Customer Pain Signals", size=14, color=SRAM_RED_LIGHT, bold=True)
+bullet_list(slide, Inches(1.1), Inches(4.7), Inches(4.8), Inches(2.2),
+            ["Trustpilot: warranty frustration and support delays",
+             "Reddit: pairing issues, firmware failures, shifting anomalies",
+             "App stores: AXS and Hammerhead companion complaints",
+             "Riders explicitly stating intent to switch to Shimano"],
+            SRAM_GRAY_LIGHT, 11)
 
-# Three-column evidence
-add_bullet_card(slide, Inches(0.8), Inches(4.5), Inches(3.5), Inches(2.7),
-                "Customer Pain Signals",
-                ["Trustpilot: warranty frustration",
-                 "Reddit: pairing + firmware failures",
-                 "App store: AXS + Hammerhead complaints",
-                 "Riders stating intent to switch to Shimano"],
-                ACCENT_RED, TEXT_LIGHT)
-
-add_bullet_card(slide, Inches(4.6), Inches(4.5), Inches(3.5), Inches(2.7),
-                "Why Support is the Right Pilot",
-                ["Pain is visible and measurable",
-                 "Data advantage already in place",
-                 "High volume of repeatable questions",
-                 "No new data collection required"],
-                ACCENT_GREEN, TEXT_LIGHT)
-
-add_bullet_card(slide, Inches(8.4), Inches(4.5), Inches(4.1), Inches(2.7),
-                "SRAM's Data Advantage",
-                ["Structured knowledge base (manuals, guides)",
-                 "AXS telemetry (firmware, error codes)",
-                 "Hammerhead device data",
-                 "Compatibility rules already documented"],
-                ACCENT_BLUE, TEXT_LIGHT)
+add_rect(slide, Inches(6.6), Inches(4.1), Inches(6.0), Inches(3.0), CARD, BORDER)
+text(slide, Inches(6.9), Inches(4.25), Inches(5.0), Inches(0.35),
+     "Why SRAM Has the Data to Fix This", size=14, color=WHITE, bold=True)
+bullet_list(slide, Inches(6.9), Inches(4.7), Inches(5.4), Inches(2.2),
+            ["Structured knowledge base: manuals, compatibility guides, troubleshooting",
+             "AXS telemetry: firmware versions, error codes, device state",
+             "Hammerhead ride and device data",
+             "Compatibility rules already documented and maintained"],
+            SRAM_GRAY_LIGHT, 11)
 
 
 # ----------------------------------------------------------
-# SLIDE 5: "What Could Be" - The 90-Day Pilot
+# SLIDE 5: The 90-Day Pilot
 # ----------------------------------------------------------
-slide = prs.slides.add_slide(blank_layout)
-set_slide_bg(slide, BG_DARK)
+slide = prs.slides.add_slide(blank)
+set_slide_bg(slide)
+slide_header(slide, "THE SOLUTION", "90-Day Support Pilot")
 
-add_text_box(slide, Inches(0.8), Inches(0.3), Inches(6), Inches(0.3),
-             "WHAT COULD BE", font_size=12, color=ACCENT_GREEN, bold=True)
-add_text_box(slide, Inches(0.8), Inches(0.65), Inches(10), Inches(0.5),
-             "The 90-Day Support Pilot", font_size=32, color=TEXT_WHITE, bold=True)
-add_accent_line(slide, Inches(0.8), Inches(1.2), Inches(1.2), ACCENT_GREEN)
-
-# Workflow steps
-add_text_box(slide, Inches(0.8), Inches(1.6), Inches(6), Inches(0.4),
-             "How It Works", font_size=18, color=TEXT_WHITE, bold=True)
-
+# Workflow: 5 steps in a clean horizontal flow
 steps = [
-    ("1", "TICKET ARRIVES", "Dealer or rider submits via Zendesk", "Zendesk AI routes and classifies"),
-    ("2", "AI RETRIEVES", "Azure AI Search finds approved docs", "Pulls telemetry context from AXS"),
-    ("3", "AI DRAFTS", "OpenAI generates clear response", "Sourced from knowledge base only"),
-    ("4", "HUMAN REVIEWS", "Agent approves before sending", "100% human approval in pilot"),
-    ("5", "QUALITY LOGGED", "Metrics tracked per interaction", "Weekly review with rollback trigger"),
+    ("1", "TICKET IN", "Dealer or rider submits via Zendesk"),
+    ("2", "AI RETRIEVES", "Azure AI Search finds approved docs + AXS telemetry"),
+    ("3", "AI DRAFTS", "OpenAI generates response from knowledge base only"),
+    ("4", "HUMAN REVIEWS", "Agent approves before sending (100% in pilot)"),
+    ("5", "QUALITY LOGGED", "Metrics tracked; weekly review with rollback trigger"),
 ]
 
-for i, (num, title, line1, line2) in enumerate(steps):
+for i, (num, title, desc) in enumerate(steps):
     left = Inches(0.8) + Inches(i * 2.45)
     card_w = Inches(2.25)
 
-    card = add_shape(slide, left, Inches(2.1), card_w, Inches(2.3), BG_CARD, DIVIDER, 0.04)
+    add_rect(slide, left, Inches(1.6), card_w, Inches(2.2), CARD, BORDER)
 
-    # Step number circle
-    circle = slide.shapes.add_shape(
-        MSO_SHAPE.OVAL, left + Inches(0.15), Inches(2.25), Inches(0.4), Inches(0.4)
-    )
+    # Number circle
+    circle = slide.shapes.add_shape(MSO_SHAPE.OVAL, left + Inches(0.15), Inches(1.75),
+                                    Inches(0.35), Inches(0.35))
     circle.fill.solid()
-    circle.fill.fore_color.rgb = ACCENT_BLUE
+    circle.fill.fore_color.rgb = RED
     circle.line.fill.background()
     tf = circle.text_frame
     tf.paragraphs[0].text = num
-    tf.paragraphs[0].font.size = Pt(16)
-    tf.paragraphs[0].font.color.rgb = TEXT_WHITE
+    tf.paragraphs[0].font.size = Pt(14)
+    tf.paragraphs[0].font.color.rgb = WHITE
     tf.paragraphs[0].font.bold = True
     tf.paragraphs[0].alignment = PP_ALIGN.CENTER
-    tf.word_wrap = False
 
-    add_text_box(slide, left + Inches(0.15), Inches(2.75), card_w - Inches(0.3), Inches(0.35),
-                 title, font_size=11, color=ACCENT_BLUE, bold=True)
-    add_text_box(slide, left + Inches(0.15), Inches(3.1), card_w - Inches(0.3), Inches(0.5),
-                 line1, font_size=11, color=TEXT_LIGHT)
-    add_text_box(slide, left + Inches(0.15), Inches(3.55), card_w - Inches(0.3), Inches(0.5),
-                 line2, font_size=10, color=TEXT_DIM)
+    text(slide, left + Inches(0.15), Inches(2.2), card_w - Inches(0.3), Inches(0.25),
+         title, size=10, color=RED, bold=True)
+    text(slide, left + Inches(0.15), Inches(2.5), card_w - Inches(0.3), Inches(1.0),
+         desc, size=11, color=SRAM_GRAY_LIGHT)
 
-# Scope and controls
-add_text_box(slide, Inches(0.8), Inches(4.7), Inches(6), Inches(0.4),
-             "Pilot Scope", font_size=18, color=TEXT_WHITE, bold=True)
+# Scope + Controls (two clean cards)
+add_rect(slide, Inches(0.8), Inches(4.15), Inches(5.8), Inches(3.0), CARD, BORDER)
+text(slide, Inches(1.1), Inches(4.3), Inches(5.0), Inches(0.35),
+     "Pilot Scope", size=14, color=WHITE, bold=True)
+bullet_list(slide, Inches(1.1), Inches(4.7), Inches(5.2), Inches(2.2),
+            ["AXS drivetrain + Hammerhead device support only",
+             "Dealer inbox and high-volume web forms",
+             "Compatibility and firmware issues first",
+             "Human approval on all customer-facing responses"],
+            SRAM_GRAY_LIGHT, 11)
 
-add_bullet_card(slide, Inches(0.8), Inches(5.15), Inches(5.5), Inches(2.1),
-                "Bounded Starting Point",
-                ["AXS drivetrain + Hammerhead device support only",
-                 "Dealer inbox + high-volume web forms only",
-                 "Compatibility and firmware issues first",
-                 "Human approval on all customer-facing responses"],
-                ACCENT_BLUE)
-
-add_bullet_card(slide, Inches(6.6), Inches(5.15), Inches(5.5), Inches(2.1),
-                "Risk Controls",
-                ["Human approval for warranty + safety decisions",
-                 "Answers from approved docs only, never model knowledge",
-                 "Weekly quality review with rollback trigger",
-                 "No automated warranty adjudication in Phase 1"],
-                ACCENT_AMBER)
+add_rect(slide, Inches(6.85), Inches(4.15), Inches(5.8), Inches(3.0), CARD, BORDER)
+text(slide, Inches(7.15), Inches(4.3), Inches(5.0), Inches(0.35),
+     "Risk Controls", size=14, color=WHITE, bold=True)
+bullet_list(slide, Inches(7.15), Inches(4.7), Inches(5.2), Inches(2.2),
+            ["Human approval for warranty and safety decisions",
+             "Answers sourced from approved docs only",
+             "Weekly quality review with rollback trigger",
+             "No automated warranty adjudication in Phase 1"],
+            SRAM_GRAY_LIGHT, 11)
 
 
 # ----------------------------------------------------------
-# SLIDE 6: Success Metrics + Financial Impact
+# SLIDE 6: Metrics + Financials
 # ----------------------------------------------------------
-slide = prs.slides.add_slide(blank_layout)
-set_slide_bg(slide, BG_DARK)
+slide = prs.slides.add_slide(blank)
+set_slide_bg(slide)
+slide_header(slide, "MEASURING SUCCESS", "Pilot Metrics and Year-1 Financial Impact")
 
-add_text_box(slide, Inches(0.8), Inches(0.3), Inches(6), Inches(0.3),
-             "MEASURING SUCCESS", font_size=12, color=ACCENT_BLUE, bold=True)
-add_text_box(slide, Inches(0.8), Inches(0.65), Inches(10), Inches(0.5),
-             "Pilot Metrics and Year-1 Financial Impact", font_size=32, color=TEXT_WHITE, bold=True)
-add_accent_line(slide, Inches(0.8), Inches(1.2), Inches(1.2), ACCENT_BLUE)
+# Left: pilot metrics
+text(slide, Inches(0.8), Inches(1.5), Inches(6), Inches(0.35),
+     "90-Day Pilot Targets", size=16, color=WHITE, bold=True)
 
-# Pilot metrics
-add_text_box(slide, Inches(0.8), Inches(1.6), Inches(6), Inches(0.4),
-             "90-Day Pilot Metrics", font_size=18, color=TEXT_WHITE, bold=True)
-
-metrics = [
+metrics_list = [
     ("Time-to-first-response", "40% reduction"),
     ("Tickets without escalation", "15% improvement"),
     ("Agent productivity", "25% increase"),
     ("AI draft acceptance rate", "Above 70%"),
-    ("Customer satisfaction", "No decline from baseline"),
+    ("Customer satisfaction", "No decline"),
 ]
 
-for i, (metric, target) in enumerate(metrics):
-    y = Inches(2.1) + Inches(i * 0.45)
-    add_text_box(slide, Inches(0.8), y, Inches(4), Inches(0.4),
-                 metric, font_size=13, color=TEXT_LIGHT)
-    add_text_box(slide, Inches(5.0), y, Inches(2.5), Inches(0.4),
-                 target, font_size=13, color=ACCENT_GREEN, bold=True)
+for i, (met, target) in enumerate(metrics_list):
+    y = Inches(2.0) + Inches(i * 0.45)
+    text(slide, Inches(0.8), y, Inches(4.0), Inches(0.35), met, size=12, color=SRAM_GRAY_LIGHT)
+    text(slide, Inches(5.0), y, Inches(2.0), Inches(0.35), target, size=12, color=RED, bold=True)
 
-# Financial impact - right side
-add_text_box(slide, Inches(7.5), Inches(1.6), Inches(5), Inches(0.4),
-             "Year-1 Financial Impact (All Phases)", font_size=18, color=TEXT_WHITE, bold=True)
+# Right: financials
+text(slide, Inches(7.5), Inches(1.5), Inches(5), Inches(0.35),
+     "Year-1 Financial Impact (All Phases)", size=16, color=WHITE, bold=True)
 
-# Big numbers
-add_metric_card(slide, Inches(7.5), Inches(2.1), Inches(2.5), Inches(1.4),
-                "NET YEAR-1 VALUE", "$10.2M", ACCENT_GREEN, "Expected case")
-add_metric_card(slide, Inches(10.2), Inches(2.1), Inches(2.5), Inches(1.4),
-                "RETURN ON SPEND", "3.8x", ACCENT_GREEN, "On $2.7M total spend")
+metric_card(slide, Inches(7.5), Inches(2.0), Inches(2.5), Inches(1.3),
+            "NET YEAR-1 VALUE", "$10.2M", RED, "Expected case")
+metric_card(slide, Inches(10.2), Inches(2.0), Inches(2.5), Inches(1.3),
+            "RETURN ON SPEND", "3.8x", RED, "On $2.7M total spend")
 
-# Breakdown
 fin_lines = [
-    ("Cost Reductions", 14, TEXT_WHITE, True),
-    ("Support automation: $1.6M", 12, TEXT_LIGHT, False),
-    ("Demand forecasting: $1.6M", 12, TEXT_LIGHT, False),
-    ("Documentation: $0.24M", 12, TEXT_LIGHT, False),
-    ("", 8, TEXT_DIM, False),
-    ("Revenue Growth", 14, TEXT_WHITE, True),
-    ("Customer retention: $3.0M", 12, TEXT_LIGHT, False),
-    ("Package size increase: $4.0M", 12, TEXT_LIGHT, False),
-    ("Proposal win rate: $2.5M", 12, TEXT_LIGHT, False),
-    ("", 8, TEXT_DIM, False),
-    ("Gross value: $12.9M", 13, ACCENT_BLUE, True),
-    ("Total spend: ($2.7M)", 13, ACCENT_AMBER, False),
-    ("Net value: $10.2M", 13, ACCENT_GREEN, True),
+    ("Cost Reductions", 13, WHITE, True),
+    ("Support automation: $1.6M", 11, SRAM_GRAY_LIGHT, False),
+    ("Demand forecasting: $1.6M", 11, SRAM_GRAY_LIGHT, False),
+    ("Documentation: $0.24M", 11, SRAM_GRAY_LIGHT, False),
+    ("", 6, GRAY, False),
+    ("Revenue Growth", 13, WHITE, True),
+    ("Customer retention: $3.0M", 11, SRAM_GRAY_LIGHT, False),
+    ("Package size increase: $4.0M", 11, SRAM_GRAY_LIGHT, False),
+    ("Proposal win rate: $2.5M", 11, SRAM_GRAY_LIGHT, False),
+    ("", 6, GRAY, False),
+    ("Gross value: $12.9M", 12, WHITE, True),
+    ("Total spend: ($2.7M)", 12, GRAY, False),
+    ("Net value: $10.2M", 12, RED, True),
 ]
-
-add_multiline_text(slide, Inches(7.5), Inches(3.7), Inches(5), Inches(3.5),
-                   fin_lines, line_spacing=1.3)
+multitext(slide, Inches(7.5), Inches(3.5), Inches(5.0), Inches(3.5), fin_lines, 1.25)
 
 
 # ----------------------------------------------------------
-# SLIDE 7: 2031 Vision - AI-First SRAM
+# SLIDE 7: 2031 Vision
 # ----------------------------------------------------------
-slide = prs.slides.add_slide(blank_layout)
-set_slide_bg(slide, BG_DARK)
+slide = prs.slides.add_slide(blank)
+set_slide_bg(slide)
+slide_header(slide, "2031 VISION", "From Hardware Manufacturer to Performance Intelligence")
 
-add_text_box(slide, Inches(0.8), Inches(0.3), Inches(6), Inches(0.3),
-             "WHAT COULD BE", font_size=12, color=ACCENT_GREEN, bold=True)
-add_text_box(slide, Inches(0.8), Inches(0.65), Inches(10), Inches(0.5),
-             "SRAM 2031 - From Hardware to Intelligence", font_size=32, color=TEXT_WHITE, bold=True)
-add_accent_line(slide, Inches(0.8), Inches(1.2), Inches(1.2), ACCENT_GREEN)
+text(slide, Inches(0.8), Inches(1.4), Inches(11), Inches(0.5),
+     "SRAM's full product stack creates a data moat no competitor can replicate. "
+     "The rider with SRAM drivetrain, RockShox suspension, Quarq power, and Hammerhead "
+     "computer gets a unified intelligence layer impossible with mixed components.",
+     size=14, color=SRAM_GRAY_LIGHT)
 
-add_text_box(slide, Inches(0.8), Inches(1.45), Inches(11), Inches(0.5),
-             "SRAM's full product stack creates a data moat no competitor can replicate. "
-             "The rider who buys SRAM drivetrain, RockShox suspension, Quarq power, and Hammerhead "
-             "computer gets a unified intelligence layer impossible with mixed components.",
-             font_size=14, color=TEXT_LIGHT)
-
-# Vision cards
 visions = [
     ("AXS Intelligence Platform",
-     "Unified rider dashboard showing power, gearing, suspension, "
-     "and heart rate in one view. No competitor has the product breadth to match this.",
-     ACCENT_BLUE),
+     "Unified rider dashboard showing power, gearing, suspension, and heart rate "
+     "in one view. No competitor has the product breadth to match this."),
     ("Predictive Maintenance",
      "Connected components predict chain, cassette, and brake pad replacement "
-     "before failure. Installed base becomes recurring revenue.",
-     ACCENT_GREEN),
+     "before failure. Installed base becomes a recurring revenue platform."),
     ("AI-Tuned Performance",
      "Suspension auto-adjusts to terrain. Shifting optimizes for rider power "
-     "patterns. Products improve continuously after purchase.",
-     ACCENT_GREEN),
+     "patterns. Products improve continuously after purchase."),
     ("Dealer Intelligence",
-     "Aggregated telemetry tells dealers which parts approach end-of-life "
-     "in their service area. Proactive ordering replaces reactive.",
-     ACCENT_BLUE),
+     "Aggregated telemetry tells dealers which parts approach end-of-life in their "
+     "service area. Proactive ordering replaces reactive."),
 ]
 
-for i, (title, desc, color) in enumerate(visions):
-    row = i // 2
+for i, (title, desc) in enumerate(visions):
     col = i % 2
-    left = Inches(0.8) + Inches(col * 5.8)
-    top = Inches(2.5) + Inches(row * 2.2)
-    card_w = Inches(5.5)
-    card_h = Inches(1.9)
+    row = i // 2
+    left = Inches(0.8) + Inches(col * 5.9)
+    top = Inches(2.2) + Inches(row * 2.1)
+    card_w = Inches(5.65)
+    card_h = Inches(1.85)
 
-    card = add_shape(slide, left, top, card_w, card_h, BG_CARD, DIVIDER, 0.04)
-    add_text_box(slide, left + Inches(0.3), top + Inches(0.2),
-                 card_w - Inches(0.6), Inches(0.4),
-                 title, font_size=16, color=color, bold=True)
-    add_text_box(slide, left + Inches(0.3), top + Inches(0.65),
-                 card_w - Inches(0.6), Inches(1.0),
-                 desc, font_size=12, color=TEXT_LIGHT)
+    add_rect(slide, left, top, card_w, card_h, CARD, BORDER)
+    text(slide, left + Inches(0.3), top + Inches(0.15), card_w - Inches(0.6), Inches(0.35),
+         title, size=15, color=RED, bold=True)
+    text(slide, left + Inches(0.3), top + Inches(0.55), card_w - Inches(0.6), Inches(1.1),
+         desc, size=12, color=SRAM_GRAY_LIGHT)
 
-# Flywheel statement
-add_shape(slide, Inches(0.8), Inches(6.8), Inches(11.5), Inches(0.5), BG_CARD, ACCENT_GREEN, 0.1)
-add_text_box(slide, Inches(1.3), Inches(6.85), Inches(10.5), Inches(0.4),
-             "The Flywheel: Hardware sells data access  \u2192  Data improves performance  \u2192  Performance sells hardware",
-             font_size=14, color=ACCENT_GREEN, bold=True, alignment=PP_ALIGN.CENTER)
+# Flywheel
+add_rect(slide, Inches(0.8), Inches(6.5), Inches(11.7), Inches(0.45), CARD, RED, 0.1)
+text(slide, Inches(1.2), Inches(6.55), Inches(11.0), Inches(0.35),
+     "Hardware sells data access  \u2192  Data improves performance  \u2192  Performance sells hardware",
+     size=13, color=RED, bold=True, align=PP_ALIGN.CENTER)
 
 
 # ----------------------------------------------------------
 # SLIDE 8: The Ask
 # ----------------------------------------------------------
-slide = prs.slides.add_slide(blank_layout)
-set_slide_bg(slide, BG_DARK)
-
-add_text_box(slide, Inches(0.8), Inches(0.3), Inches(6), Inches(0.3),
-             "THE DECISION", font_size=12, color=ACCENT_BLUE, bold=True)
-add_text_box(slide, Inches(0.8), Inches(0.65), Inches(10), Inches(0.5),
-             "Three Actions for SRAM's CEO", font_size=32, color=TEXT_WHITE, bold=True)
-add_accent_line(slide, Inches(0.8), Inches(1.2), Inches(1.2), ACCENT_BLUE)
+slide = prs.slides.add_slide(blank)
+set_slide_bg(slide)
+slide_header(slide, "THE DECISION", "Three Actions for SRAM's CEO")
 
 actions = [
     ("1", "Launch the 90-Day Support Pilot",
-     "Scope it to AXS and Hammerhead dealer support. "
-     "One product owner, one integration engineer. "
-     "Human approval on all customer-facing outputs. Weekly quality reviews.",
-     ACCENT_GREEN),
+     "Scope it to AXS and Hammerhead dealer support. One product owner, "
+     "one integration engineer. Human approval on all outputs. Weekly quality reviews."),
     ("2", "Begin Data Infrastructure Planning",
-     "Initiate requirements for a unified data layer connecting Shopify, "
-     "support systems, and telemetry data. This is the foundation for "
-     "demand forecasting and AXS Intelligence.",
-     ACCENT_BLUE),
+     "Initiate requirements for a unified data layer connecting Shopify, support systems, "
+     "and telemetry data. This is the foundation for forecasting and AXS Intelligence."),
     ("3", "Hold Sequencing Discipline",
-     "Bounded, well-defined problems first. Broader transformation after "
-     "measured proof. The 90-day pilot produces data to justify or redirect "
-     "every subsequent investment.",
-     ACCENT_AMBER),
+     "Bounded, well-defined problems first. Broader transformation after measured proof. "
+     "The 90-day pilot produces data to justify or redirect every subsequent investment."),
 ]
 
-for i, (num, title, desc, color) in enumerate(actions):
-    top = Inches(1.5) + Inches(i * 1.65)
+for i, (num, title, desc) in enumerate(actions):
+    top = Inches(1.5) + Inches(i * 1.6)
+    add_rect(slide, Inches(0.8), top, Inches(11.5), Inches(1.35), CARD, BORDER)
 
-    card = add_shape(slide, Inches(0.8), top, Inches(11.5), Inches(1.4), BG_CARD, color, 0.03)
-
-    # Number
-    circle = slide.shapes.add_shape(
-        MSO_SHAPE.OVAL, Inches(1.2), top + Inches(0.3), Inches(0.55), Inches(0.55)
-    )
+    # Number circle
+    circle = slide.shapes.add_shape(MSO_SHAPE.OVAL, Inches(1.2), top + Inches(0.28),
+                                    Inches(0.5), Inches(0.5))
     circle.fill.solid()
-    circle.fill.fore_color.rgb = color
+    circle.fill.fore_color.rgb = RED
     circle.line.fill.background()
     tf = circle.text_frame
     tf.paragraphs[0].text = num
-    tf.paragraphs[0].font.size = Pt(20)
-    tf.paragraphs[0].font.color.rgb = BG_DARK
+    tf.paragraphs[0].font.size = Pt(18)
+    tf.paragraphs[0].font.color.rgb = WHITE
     tf.paragraphs[0].font.bold = True
     tf.paragraphs[0].alignment = PP_ALIGN.CENTER
-    tf.word_wrap = False
 
-    add_text_box(slide, Inches(2.1), top + Inches(0.15), Inches(9.5), Inches(0.45),
-                 title, font_size=18, color=TEXT_WHITE, bold=True)
-    add_text_box(slide, Inches(2.1), top + Inches(0.6), Inches(9.5), Inches(0.65),
-                 desc, font_size=12, color=TEXT_LIGHT)
+    text(slide, Inches(2.0), top + Inches(0.12), Inches(9.8), Inches(0.4),
+         title, size=18, color=WHITE, bold=True)
+    text(slide, Inches(2.0), top + Inches(0.55), Inches(9.8), Inches(0.65),
+         desc, size=12, color=SRAM_GRAY_LIGHT)
 
-# Bottom summary - positioned below the three cards (1.5 + 3*1.65 = 6.45, cards end at 6.45+1.4=~6.55)
-add_shape(slide, Inches(0.8), Inches(6.75), Inches(11.5), Inches(0.5), BG_CARD, ACCENT_GREEN, 0.1)
-add_text_box(slide, Inches(1.3), Inches(6.8), Inches(10.5), Inches(0.4),
-             "Expected Year-1 return: 3.8x  |  Downside bounded by 90-day pilot  |  "
-             "Upside scales with SRAM's unique data advantage",
-             font_size=13, color=ACCENT_GREEN, bold=True, alignment=PP_ALIGN.CENTER)
+# Bottom bar
+add_rect(slide, Inches(0.8), Inches(6.45), Inches(11.5), Inches(0.4), CARD, RED, 0.1)
+text(slide, Inches(1.2), Inches(6.48), Inches(10.8), Inches(0.35),
+     "Expected Year-1 return: 3.8x  |  Downside bounded by 90-day pilot  |  "
+     "Upside scales with SRAM's unique data advantage",
+     size=12, color=RED, bold=True, align=PP_ALIGN.CENTER)
 
 
 # ----------------------------------------------------------
