@@ -256,21 +256,38 @@ for i, (area, initiative, problem) in enumerate(initiatives):
     text(slide, left + Inches(0.2), top + Inches(0.65), card_w - Inches(0.4), Inches(0.35),
          problem, size=10, color=GRAY)
 
-# Bottom callout - subtle with thin red left border effect
-add_rect(slide, Inches(0.8), Inches(7.0), Inches(11.7), Inches(0.35), CARD, BORDER, 0.1)
-# Tiny red accent on the left edge
+# ----------------------------------------------------------
+# SLIDE 4: Transition - zooming into Support
+# ----------------------------------------------------------
+slide = prs.slides.add_slide(blank)
+set_slide_bg(slide)
+
+# Big centered statement
+text(slide, Inches(1.5), Inches(2.2), Inches(10.3), Inches(0.6),
+     "Of these 12 initiatives, one stands out.", size=28, color=BLACK, bold=True,
+     align=PP_ALIGN.CENTER)
+text(slide, Inches(1.5), Inches(3.2), Inches(10.3), Inches(0.5),
+     "Highest pain signal. Strongest data advantage. Fastest path to proof.",
+     size=16, color=GRAY, align=PP_ALIGN.CENTER)
+
+# The chosen initiative - a single clean card
+add_rect(slide, Inches(3.5), Inches(4.2), Inches(6.3), Inches(1.6), CARD, BORDER)
 red_bar = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE,
-                                 Inches(0.8), Inches(7.0), Pt(4), Inches(0.35))
+                                 Inches(3.5), Inches(4.2), Pt(4), Inches(1.6))
 red_bar.fill.solid()
 red_bar.fill.fore_color.rgb = RED
 red_bar.line.fill.background()
-text(slide, Inches(1.2), Inches(7.03), Inches(11.0), Inches(0.3),
-     "We focus on the area with the highest uplift and fastest proof: Customer and Dealer Support",
-     size=12, color=BLACK, bold=True, align=PP_ALIGN.CENTER)
+text(slide, Inches(3.9), Inches(4.35), Inches(5.5), Inches(0.3),
+     "SUPPORT", size=10, color=GRAY, bold=True)
+text(slide, Inches(3.9), Inches(4.65), Inches(5.5), Inches(0.4),
+     "Customer and Dealer Support Automation", size=22, color=BLACK, bold=True)
+text(slide, Inches(3.9), Inches(5.15), Inches(5.5), Inches(0.4),
+     "70% of dealer questions are repetitive. Trustpilot sits at 1.6 / 5.0.",
+     size=13, color=BODY)
 
 
 # ----------------------------------------------------------
-# SLIDE 4: The Support Problem (deep dive begins)
+# SLIDE 5: The Support Problem (deep dive)
 # ----------------------------------------------------------
 slide = prs.slides.add_slide(blank)
 set_slide_bg(slide)
