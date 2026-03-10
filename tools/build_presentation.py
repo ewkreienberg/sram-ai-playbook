@@ -34,6 +34,8 @@ ACCENT_RED = RGBColor(0xE5, 0x19, 0x37)      # SRAM red - used sparingly
 ACCENT_RED_SOFT = RGBColor(0xC4, 0x3B, 0x4F) # Muted red for emphasis
 LIGHT_GRAY_BG = RGBColor(0xF0, 0xF0, 0xEE)  # Alternating row backgrounds
 HIGHLIGHT_BG = RGBColor(0xFD, 0xF0, 0xF2)   # Very subtle red tint for highlight
+GANTT_ACCENT = RGBColor(0x2D, 0x5F, 0x8A)   # Steel blue for bars and badges
+GANTT_LIGHT = RGBColor(0xD4, 0xE4, 0xF0)    # Light blue for setup bars
 
 SLIDE_WIDTH = Inches(13.333)
 SLIDE_HEIGHT = Inches(7.5)
@@ -518,7 +520,92 @@ slide_footer(slide, page)
 
 
 # ----------------------------------------------------------
-# SLIDE 6b: Gantt Chart - 90-Day Pilot Timeline
+# SLIDE 6b: SMART Goals (full definitions before Gantt)
+# ----------------------------------------------------------
+page += 1
+slide = prs.slides.add_slide(blank)
+set_slide_bg(slide)
+slide_header(slide, "THE GOALS",
+             "Five SMART goals define pilot success at day 90")
+
+text(slide, Inches(0.8), Inches(1.35), Inches(11.5), Inches(0.35),
+     "Hartsell set the bar: \"One workflow measurably faster, measurably more "
+     "accurate, with no regression in dealer satisfaction scores.\"",
+     size=13, color=BODY)
+
+smart_goals_full = [
+    ("G1", "Cut first-response time by 40%",
+     "Reduce average time-to-first-response on AXS and Hammerhead dealer "
+     "support tickets by 40% within 90 days, measured weekly against the "
+     "pre-pilot SLA baseline in Zendesk.",
+     "-40%", "vs. current SLA"),
+    ("G2", "Resolve 15% more tickets without escalation",
+     "Increase the share of tickets resolved without escalation by 15 "
+     "percentage points within 90 days, measured weekly against the current "
+     "escalation rate.",
+     "+15 pts", "vs. current rate"),
+    ("G3", "Reach 70%+ AI draft acceptance",
+     "Achieve a 70% or higher rate of support agents approving the AI-drafted "
+     "response (with minor or no edits) by day 90. Below 50% at day 45 "
+     "triggers a scope review.",
+     ">70%", "agent acceptance"),
+    ("G4", "Increase agent throughput by 25%",
+     "Raise tickets handled per agent per day by 25% within 90 days. "
+     "Confirms AI assistance translates into real productivity.",
+     "+25%", "tickets/agent/day"),
+    ("G5", "Hold customer satisfaction flat",
+     "Maintain or improve CSAT scores on AI-assisted tickets. Any sustained "
+     "decline triggers rollback. Trustpilot (1.6/5.0) should stabilize by "
+     "day 90.",
+     "No decline", "CSAT holds flat"),
+]
+
+for i, (gid, title, desc, target, detail) in enumerate(smart_goals_full):
+    y = Inches(1.95) + Inches(i * 1.0)
+    # Alternating row background
+    if i % 2 == 0:
+        add_rect(slide, Inches(0.8), y - Inches(0.05), Inches(11.7), Inches(0.95),
+                 LIGHT_GRAY_BG, None, 0.02)
+
+    # Goal ID badge
+    badge = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
+                                   Inches(0.95), y + Inches(0.08), Inches(0.5), Inches(0.35))
+    badge.fill.solid()
+    badge.fill.fore_color.rgb = GANTT_ACCENT
+    badge.line.fill.background()
+    badge.adjustments[0] = 0.15
+    tf = badge.text_frame
+    tf.word_wrap = True
+    p = tf.paragraphs[0]
+    p.text = gid
+    p.font.size = Pt(12)
+    p.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
+    p.font.bold = True
+    p.alignment = PP_ALIGN.CENTER
+
+    # Title and target on the same line
+    text(slide, Inches(1.6), y + Inches(0.05), Inches(6.5), Inches(0.35),
+         title, size=14, color=BLACK, bold=True)
+    text(slide, Inches(8.5), y + Inches(0.05), Inches(1.5), Inches(0.35),
+         target, size=16, color=RED, bold=True)
+    text(slide, Inches(10.0), y + Inches(0.08), Inches(2.2), Inches(0.3),
+         detail, size=10, color=GRAY)
+
+    # Description
+    text(slide, Inches(1.6), y + Inches(0.42), Inches(10.5), Inches(0.45),
+         desc, size=11, color=BODY)
+
+# Kill criteria callout
+quote_box(slide, Inches(0.8), Inches(6.95), Inches(11.8), Inches(0.35),
+          "Kill criteria: 2 weeks of quality degradation, any safety error reaching "
+          "a dealer without review, or dealer opt-out above 15%.",
+          "")
+
+slide_footer(slide, page)
+
+
+# ----------------------------------------------------------
+# SLIDE 6c: Gantt Chart - 90-Day Pilot Timeline
 # ----------------------------------------------------------
 page += 1
 slide = prs.slides.add_slide(blank)
@@ -547,9 +634,6 @@ for i in range(1, 3):
     divider.line.fill.background()
 
 # Gantt rows: (label, smart_goal_num, start_month, duration_months, color)
-GANTT_ACCENT = RGBColor(0x2D, 0x5F, 0x8A)  # Steel blue for bars
-GANTT_LIGHT = RGBColor(0xD4, 0xE4, 0xF0)   # Light blue for setup bars
-
 gantt_rows = [
     ("Setup + Integration", "", 0, 1, GANTT_LIGHT,
      "Zendesk + Kendra + Bedrock integration; baseline metrics"),
@@ -655,56 +739,36 @@ set_slide_bg(slide)
 slide_header(slide, "THE RETURN",
              "$10.2M net value in Year 1 on $2.7M spend")
 
-# LEFT: SMART Goals
+# LEFT: Support savings math and scenario range
 text(slide, Inches(0.8), Inches(1.45), Inches(5.5), Inches(0.3),
-     "SMART Goals (90 Days)", size=16, color=BLACK, bold=True)
+     "Support Pilot Savings", size=16, color=BLACK, bold=True)
 
-smart_goals = [
-    ("1", "First-response time", "-40%", "vs. current SLA"),
-    ("2", "Tickets without escalation", "+15 pts", "vs. current rate"),
-    ("3", "AI draft acceptance", ">70%", "agents approve draft"),
-    ("4", "Agent throughput", "+25%", "tickets per agent/day"),
-    ("5", "Customer satisfaction", "No decline", "CSAT holds flat"),
-]
-
-for i, (num, goal, target, detail) in enumerate(smart_goals):
-    y = Inches(1.9) + Inches(i * 0.42)
-    if i % 2 == 0:
-        add_rect(slide, Inches(0.8), y - Inches(0.02), Inches(5.5), Inches(0.38),
-                 LIGHT_GRAY_BG, None, 0.02)
-    text(slide, Inches(0.9), y, Inches(0.25), Inches(0.3), num,
-         size=11, color=GRAY, bold=True)
-    text(slide, Inches(1.15), y, Inches(2.3), Inches(0.3), goal, size=11, color=BODY)
-    text(slide, Inches(3.5), y, Inches(1.0), Inches(0.3), target,
-         size=11, color=BLACK, bold=True)
-    text(slide, Inches(4.5), y, Inches(1.7), Inches(0.3), detail,
-         size=9, color=GRAY)
-
-# Support savings math
-text(slide, Inches(0.8), Inches(4.1), Inches(5.5), Inches(0.3),
-     "Support Savings Math", size=14, color=BLACK, bold=True)
-text(slide, Inches(0.8), Inches(4.45), Inches(5.5), Inches(0.9),
+add_rect(slide, Inches(0.8), Inches(1.9), Inches(5.5), Inches(1.6), CARD, BORDER)
+text(slide, Inches(1.1), Inches(2.0), Inches(5.0), Inches(1.2),
      "120 support staff x $90K avg. cost\n"
      "x 60% AI-addressable work\n"
      "x 35% productivity gain\n"
-     "x 70% adoption = $1.6M",
-     size=11, color=BODY)
+     "x 70% adoption\n"
+     "= $1.6M Year-1 support savings",
+     size=12, color=BODY)
 
-# Scenario range
-text(slide, Inches(0.8), Inches(5.55), Inches(5.5), Inches(0.3),
-     "Scenario Range", size=14, color=BLACK, bold=True)
+text(slide, Inches(0.8), Inches(3.75), Inches(5.5), Inches(0.3),
+     "Scenario Range (All Phases)", size=16, color=BLACK, bold=True)
 
 scenarios = [
-    ("Conservative", "$4.5M net", "2.8x"),
-    ("Expected", "$10.2M net", "3.8x"),
-    ("Upside", "$22.5M net", "6.4x"),
+    ("Conservative", "$4.5M net", "2.8x ROI"),
+    ("Expected", "$10.2M net", "3.8x ROI"),
+    ("Upside", "$22.5M net", "6.4x ROI"),
 ]
 for i, (label, value, roi) in enumerate(scenarios):
-    y = Inches(5.9) + Inches(i * 0.35)
-    text(slide, Inches(1.0), y, Inches(1.5), Inches(0.3), label, size=11, color=GRAY)
-    text(slide, Inches(2.5), y, Inches(1.5), Inches(0.3), value,
-         size=11, color=BLACK, bold=True)
-    text(slide, Inches(4.0), y, Inches(1.0), Inches(0.3), roi, size=11, color=GRAY)
+    y = Inches(4.2) + Inches(i * 0.55)
+    if i % 2 == 0:
+        add_rect(slide, Inches(0.8), y - Inches(0.05), Inches(5.5), Inches(0.5),
+                 LIGHT_GRAY_BG, None, 0.02)
+    text(slide, Inches(1.0), y, Inches(1.8), Inches(0.4), label, size=13, color=GRAY)
+    text(slide, Inches(2.8), y, Inches(1.8), Inches(0.4), value,
+         size=15, color=BLACK, bold=True)
+    text(slide, Inches(4.6), y, Inches(1.5), Inches(0.4), roi, size=12, color=GRAY)
 
 # RIGHT: Financial summary
 text(slide, Inches(7.0), Inches(1.45), Inches(5.5), Inches(0.3),
@@ -1078,4 +1142,6 @@ os.makedirs(out_dir, exist_ok=True)
 out_path = os.path.join(out_dir, "SRAM_AI_Adoption_Playbook.pptx")
 prs.save(out_path)
 print(f"Saved presentation to {out_path}")
-print(f"Slides: {len(prs.slides)} (9 content + 3 appendix)")
+n_slides = len(prs.slides)
+n_appendix = 3
+print(f"Slides: {n_slides} ({n_slides - n_appendix} content + {n_appendix} appendix)")
