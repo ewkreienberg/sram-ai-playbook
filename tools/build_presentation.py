@@ -202,8 +202,7 @@ page += 1
 slide = prs.slides.add_slide(blank)
 set_slide_bg(slide)
 slide_header(slide, "WHAT IS",
-             "SRAM sells $1B+ in cycling components through the only "
-             "fully connected ecosystem")
+             "SRAM's connected ecosystem is unmatched in cycling")
 
 text(slide, Inches(0.8), Inches(1.35), Inches(11.5), Inches(0.4),
      "Private, Chicago-founded. Second-largest bicycle component manufacturer globally. "
@@ -494,7 +493,7 @@ page += 1
 slide = prs.slides.add_slide(blank)
 set_slide_bg(slide)
 slide_header(slide, "THE RETURN",
-             "Expected Year-1 net value of $10.2M on $2.7M total spend")
+             "$10.2M net value in Year 1 on $2.7M spend")
 
 # LEFT: Pilot metrics
 text(slide, Inches(0.8), Inches(1.45), Inches(5.5), Inches(0.3),
@@ -585,8 +584,7 @@ page += 1
 slide = prs.slides.add_slide(blank)
 set_slide_bg(slide)
 slide_header(slide, "WHAT COULD BE",
-             "By 2031, SRAM transforms from hardware manufacturer "
-             "to performance intelligence company")
+             "Hardware company to performance intelligence by 2031")
 
 text(slide, Inches(0.8), Inches(1.35), Inches(11.5), Inches(0.35),
      "Each connected SRAM product a rider buys increases the value of the data "
