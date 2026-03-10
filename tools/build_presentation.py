@@ -263,7 +263,7 @@ slide_footer(slide, page)
 
 
 # ----------------------------------------------------------
-# SLIDE 3: Initiative Map
+# SLIDE 3: Initiative Map (with highlighted pilot pick)
 # ----------------------------------------------------------
 page += 1
 slide = prs.slides.add_slide(blank)
@@ -277,21 +277,21 @@ text(slide, Inches(0.8), Inches(1.35), Inches(11), Inches(0.35),
      size=13, color=BODY)
 
 initiatives = [
-    ("SUPPORT", "AI Support Agent", "70% of dealer questions are repetitive"),
-    ("SUPPORT", "Warranty Automation", "Fraudulent and mis-filed claims cost time"),
-    ("SUPPORT", "Compatibility Assistant", "Riders get wrong parts, return them"),
-    ("SUPPLY CHAIN", "Demand Forecasting", "No forecasting system exists today"),
-    ("SUPPLY CHAIN", "Inventory Allocation", "Stockouts and rush shipping losses"),
-    ("SUPPLY CHAIN", "Customer Analytics", "Shopify data is siloed, unused"),
-    ("SALES", "OEM Proposal Automation", "Proposal cycles are slow, manual"),
-    ("SALES", "Part Recommendations", "No guided upsell at point of service"),
-    ("SALES", "DTC Personalization", "Velocio has no targeting capability"),
-    ("ENGINEERING", "Generative Design", "Physical testing is slow and expensive"),
-    ("ENGINEERING", "AXS Intelligence", "Telemetry data is collected but unused"),
-    ("ENGINEERING", "AI-Tuned Components", "Suspension and shifting are static"),
+    ("SUPPORT", "AI Support Agent", "70% of dealer questions are repetitive", True),
+    ("SUPPORT", "Warranty Automation", "Fraudulent and mis-filed claims cost time", False),
+    ("SUPPORT", "Compatibility Assistant", "Riders get wrong parts, return them", False),
+    ("SUPPLY CHAIN", "Demand Forecasting", "No forecasting system exists today", False),
+    ("SUPPLY CHAIN", "Inventory Allocation", "Stockouts and rush shipping losses", False),
+    ("SUPPLY CHAIN", "Customer Analytics", "Shopify data is siloed, unused", False),
+    ("SALES", "OEM Proposal Automation", "Proposal cycles are slow, manual", False),
+    ("SALES", "Part Recommendations", "No guided upsell at point of service", False),
+    ("SALES", "DTC Personalization", "Velocio has no targeting capability", False),
+    ("ENGINEERING", "Generative Design", "Physical testing is slow and expensive", False),
+    ("ENGINEERING", "AXS Intelligence", "Telemetry data is collected but unused", False),
+    ("ENGINEERING", "AI-Tuned Components", "Suspension and shifting are static", False),
 ]
 
-for i, (area, initiative, problem) in enumerate(initiatives):
+for i, (area, initiative, problem, highlight) in enumerate(initiatives):
     col = i % 3
     row = i // 3
     left = Inches(0.8) + Inches(col * 4.1)
@@ -299,58 +299,24 @@ for i, (area, initiative, problem) in enumerate(initiatives):
     card_w = Inches(3.85)
     card_h = Inches(1.05)
 
-    add_rect(slide, left, top, card_w, card_h, CARD, BORDER)
-    text(slide, left + Inches(0.2), top + Inches(0.08), Inches(1.5), Inches(0.2),
-         area, size=8, color=GRAY, bold=True)
+    if highlight:
+        add_rect(slide, left, top, card_w, card_h, HIGHLIGHT_BG, RED)
+        # Red left-edge accent bar
+        bar = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE,
+                                     left, top, Pt(4), card_h)
+        bar.fill.solid()
+        bar.fill.fore_color.rgb = RED
+        bar.line.fill.background()
+        text(slide, left + Inches(0.2), top + Inches(0.08), Inches(2.5), Inches(0.2),
+             f"{area}  |  RECOMMENDED PILOT", size=8, color=RED, bold=True)
+    else:
+        add_rect(slide, left, top, card_w, card_h, CARD, BORDER)
+        text(slide, left + Inches(0.2), top + Inches(0.08), Inches(1.5), Inches(0.2),
+             area, size=8, color=GRAY, bold=True)
     text(slide, left + Inches(0.2), top + Inches(0.3), card_w - Inches(0.4), Inches(0.3),
          initiative, size=13, color=BLACK, bold=True)
     text(slide, left + Inches(0.2), top + Inches(0.65), card_w - Inches(0.4), Inches(0.35),
          problem, size=10, color=GRAY)
-
-slide_footer(slide, page)
-
-
-# ----------------------------------------------------------
-# SLIDE 4: Transition - zooming into Support
-# ----------------------------------------------------------
-page += 1
-slide = prs.slides.add_slide(blank)
-set_slide_bg(slide)
-
-text(slide, Inches(1.5), Inches(1.8), Inches(10.3), Inches(0.6),
-     "Of these 12 initiatives, one stands out.", size=32, color=BLACK, bold=True,
-     align=PP_ALIGN.CENTER)
-
-# Three reason cards
-reasons = [
-    ("Highest pain signal", "Trustpilot at 1.6 / 5.0\nRiders threatening to switch"),
-    ("Strongest data advantage", "AXS telemetry + structured\nknowledge base ready today"),
-    ("Fastest path to proof", "90 days to measurable ROI\nBounded downside"),
-]
-for i, (title, desc) in enumerate(reasons):
-    left = Inches(1.2 + i * 3.8)
-    card_w = Inches(3.5)
-    add_rect(slide, left, Inches(2.8), card_w, Inches(1.2), CARD, BORDER)
-    text(slide, left + Inches(0.25), Inches(2.9), card_w - Inches(0.5), Inches(0.3),
-         title, size=14, color=BLACK, bold=True, align=PP_ALIGN.CENTER)
-    text(slide, left + Inches(0.25), Inches(3.25), card_w - Inches(0.5), Inches(0.6),
-         desc, size=11, color=GRAY, align=PP_ALIGN.CENTER)
-
-# The chosen initiative card
-add_rect(slide, Inches(3.0), Inches(4.5), Inches(7.3), Inches(1.5), CARD, BORDER)
-red_bar = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE,
-                                 Inches(3.0), Inches(4.5), Pt(4), Inches(1.5))
-red_bar.fill.solid()
-red_bar.fill.fore_color.rgb = RED
-red_bar.line.fill.background()
-text(slide, Inches(3.4), Inches(4.65), Inches(6.5), Inches(0.25),
-     "RECOMMENDED PILOT", size=10, color=RED, bold=True)
-text(slide, Inches(3.4), Inches(4.95), Inches(6.5), Inches(0.4),
-     "Customer and Dealer Support Automation", size=24, color=BLACK, bold=True)
-text(slide, Inches(3.4), Inches(5.45), Inches(6.5), Inches(0.3),
-     "70% of dealer questions follow patterns an AI agent can draft "
-     "accurate responses for",
-     size=12, color=BODY)
 
 slide_footer(slide, page)
 
