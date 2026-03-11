@@ -206,56 +206,46 @@ set_slide_bg(slide)
 slide_header(slide, "WHAT IS",
              "SRAM's connected ecosystem is unmatched in cycling")
 
-text(slide, Inches(0.8), Inches(1.35), Inches(11.5), Inches(0.4),
-     "Private, Chicago-founded. Second-largest bicycle component manufacturer globally. "
-     "Dominant in mountain bike. Seven brands, three channels.",
-     size=13, color=BODY)
-
 # Metrics row - seed the Trustpilot problem early (Duarte tension)
 metrics_data = [
-    ("REVENUE", "$1B+", "Private, not disclosed", BLACK),
+    ("REVENUE", "$1B+", "Private, Chicago-founded", BLACK),
     ("BRANDS", "7", "Integrated portfolio", BLACK),
-    ("MTB SHARE", "#1", "Market leader", BLACK),
+    ("MTB SHARE", "#1", "Market leader globally", BLACK),
     ("TRUSTPILOT", "1.6 / 5.0", "Support-driven churn risk", ACCENT_RED_SOFT),
 ]
 for i, (label, value, sub, vc) in enumerate(metrics_data):
-    metric_card(slide, Inches(0.8 + i * 3.05), Inches(2.0), Inches(2.8), Inches(1.25),
+    metric_card(slide, Inches(0.8 + i * 3.05), Inches(1.6), Inches(2.8), Inches(1.25),
                 label, value, vc, sub)
 
 # The ecosystem story - horizontal flow of brands
-text(slide, Inches(0.8), Inches(3.55), Inches(11.5), Inches(0.3),
-     "The Connected Ecosystem (no competitor matches this breadth)",
-     size=16, color=BLACK, bold=True)
-
 eco_items = [
-    ("SRAM", "Drivetrains\n+ Braking"),
+    ("SRAM", "Drivetrains + Braking"),
     ("RockShox", "Suspension"),
-    ("Zipp", "Wheels +\nCockpit"),
-    ("Quarq", "Power\nMeters"),
-    ("Hammerhead", "Cycling\nComputer"),
+    ("Zipp", "Wheels + Cockpit"),
+    ("Quarq", "Power Meters"),
+    ("Hammerhead", "Cycling Computer"),
     ("TIME", "Pedals"),
 ]
 for i, (brand, desc) in enumerate(eco_items):
     left = Inches(0.8 + i * 2.05)
     card_w = Inches(1.85)
-    add_rect(slide, left, Inches(4.0), card_w, Inches(1.15), CARD, BORDER)
-    text(slide, left + Inches(0.15), Inches(4.08), card_w - Inches(0.3), Inches(0.25),
-         brand, size=11, color=BLACK, bold=True)
-    text(slide, left + Inches(0.15), Inches(4.4), card_w - Inches(0.3), Inches(0.6),
+    add_rect(slide, left, Inches(3.3), card_w, Inches(0.85), CARD, BORDER)
+    text(slide, left + Inches(0.15), Inches(3.38), card_w - Inches(0.3), Inches(0.25),
+         brand, size=12, color=BLACK, bold=True)
+    text(slide, left + Inches(0.15), Inches(3.7), card_w - Inches(0.3), Inches(0.35),
          desc, size=10, color=GRAY)
     if i < len(eco_items) - 1:
-        arrow_right(slide, left + card_w + Inches(0.02), Inches(4.45))
+        arrow_right(slide, left + card_w + Inches(0.02), Inches(3.6))
 
 # AXS connector bar
-add_rect(slide, Inches(0.8), Inches(5.35), Inches(12.1), Inches(0.35),
+add_rect(slide, Inches(0.8), Inches(4.5), Inches(12.1), Inches(0.35),
          CARD, BORDER, 0.1)
-text(slide, Inches(1.2), Inches(5.37), Inches(11.3), Inches(0.3),
-     "AXS Wireless Ecosystem  |  All connected, all generating data, "
-     "all controlled through one platform",
+text(slide, Inches(1.2), Inches(4.52), Inches(11.3), Inches(0.3),
+     "AXS Wireless Ecosystem  |  All connected, all generating data",
      size=11, color=BLACK, bold=True, align=PP_ALIGN.CENTER)
 
 # Interview quote - competitive advantage
-quote_box(slide, Inches(0.8), Inches(5.9), Inches(12.1), Inches(0.85),
+quote_box(slide, Inches(0.8), Inches(5.3), Inches(12.1), Inches(0.85),
           "A Shimano rider uses the app to check compatibility. A Hammerhead rider uses it "
           "to train, navigate, and communicate with their component stack. That is a "
           "fundamentally different data relationship.",
@@ -391,24 +381,6 @@ text(slide, Inches(10.7), support_row_top - Inches(0.32), Inches(1.8), Inches(0.
      "START HERE", size=10, color=FUNC_COLORS["SUPPORT"], bold=True,
      align=PP_ALIGN.RIGHT)
 
-# Annotation below the support row explaining why
-text(slide, Inches(2.4), support_row_top + card_h + Inches(0.12), Inches(10.0), Inches(0.22),
-     "Support tasks are measurable, well-defined, and understood. "
-     "AI quality is easy to verify when domain knowledge is high.",
-     size=9, color=FUNC_COLORS["SUPPORT"])
-
-# Color legend at bottom
-legend_x = Inches(0.8)
-for area, fc in FUNC_COLORS.items():
-    dot = slide.shapes.add_shape(MSO_SHAPE.OVAL,
-                                 legend_x, Inches(7.0), Inches(0.12), Inches(0.12))
-    dot.fill.solid()
-    dot.fill.fore_color.rgb = fc
-    dot.line.fill.background()
-    text(slide, legend_x + Inches(0.16), Inches(6.95), Inches(1.2), Inches(0.22),
-         area, size=8, color=GRAY)
-    legend_x += Inches(1.6)
-
 slide_footer(slide, page)
 
 
@@ -426,40 +398,19 @@ text(slide, Inches(0.8), Inches(1.35), Inches(11), Inches(0.35),
      "compatibility, and warranty resolution.",
      size=13, color=BODY)
 
-# Three big metrics
-metric_card(slide, Inches(0.8), Inches(1.95), Inches(3.6), Inches(1.35),
+# Three big metrics - centered with breathing room
+metric_card(slide, Inches(0.8), Inches(2.2), Inches(3.6), Inches(1.5),
             "TRUSTPILOT RATING", "1.6 / 5.0", ACCENT_RED_SOFT,
             "Warranty friction and support delays")
-metric_card(slide, Inches(4.7), Inches(1.95), Inches(3.6), Inches(1.35),
-            "AUTOMATABLE QUESTIONS", "~70%", BLACK,
-            "Follow repeatable, documented patterns")
-metric_card(slide, Inches(8.6), Inches(1.95), Inches(4.0), Inches(1.35),
+metric_card(slide, Inches(4.9), Inches(2.2), Inches(3.6), Inches(1.5),
+            "AUTOMATABLE", "~70%", BLACK,
+            "Questions follow documented patterns")
+metric_card(slide, Inches(9.0), Inches(2.2), Inches(3.6), Inches(1.5),
             "TOP COMPLAINTS", "Firmware + Pairing", ACCENT_RED_SOFT,
-            "Reddit, app stores, Trustpilot 2024-2025")
+            "Reddit, app stores, Trustpilot")
 
-# Two columns: pain vs. advantage
-add_rect(slide, Inches(0.8), Inches(3.65), Inches(5.5), Inches(2.45), CARD, BORDER)
-text(slide, Inches(1.1), Inches(3.8), Inches(4.5), Inches(0.3),
-     "Customer Pain Signals", size=14, color=BLACK, bold=True)
-bullet_list(slide, Inches(1.1), Inches(4.15), Inches(4.8), Inches(1.8),
-            ["Trustpilot reviews cite warranty frustration and delays",
-             "Reddit 2024-25 threads on pairing failures and shifting",
-             "App store reviews flag AXS and Hammerhead bugs",
-             "Riders explicitly stating intent to switch to Shimano"],
-            BODY, 11)
-
-add_rect(slide, Inches(6.6), Inches(3.65), Inches(6.0), Inches(2.45), CARD, BORDER)
-text(slide, Inches(6.9), Inches(3.8), Inches(5.0), Inches(0.3),
-     "Why SRAM Can Fix This with AI", size=14, color=BLACK, bold=True)
-bullet_list(slide, Inches(6.9), Inches(4.15), Inches(5.4), Inches(1.8),
-            ["Structured knowledge base with manuals and guides",
-             "AXS telemetry data on firmware, error codes, device state",
-             "Hammerhead ride and device diagnostic data",
-             "60-70% data-ready for AXS/Hammerhead support (per VP)"],
-            BODY, 11)
-
-# Interview quote at bottom
-quote_box(slide, Inches(0.8), Inches(6.3), Inches(11.8), Inches(0.7),
+# Interview quote - centered vertically with space
+quote_box(slide, Inches(0.8), Inches(4.8), Inches(11.8), Inches(0.85),
           "The first question I ask anyone skeptical about AI is: do you want to spend "
           "your day searching a 200-page compatibility PDF, or do you want to spend it "
           "talking to dealers?",
@@ -490,53 +441,38 @@ for i, (num, title, desc) in enumerate(steps):
     left = Inches(0.8) + Inches(i * 2.45)
     card_w = Inches(2.15)
 
-    add_rect(slide, left, Inches(1.5), card_w, Inches(2.0), CARD, BORDER)
+    add_rect(slide, left, Inches(1.8), card_w, Inches(2.2), CARD, BORDER)
 
     # Number circle
-    circle = slide.shapes.add_shape(MSO_SHAPE.OVAL, left + Inches(0.15), Inches(1.65),
-                                    Inches(0.35), Inches(0.35))
+    circle = slide.shapes.add_shape(MSO_SHAPE.OVAL, left + Inches(0.15), Inches(1.95),
+                                    Inches(0.4), Inches(0.4))
     circle.fill.solid()
     circle.fill.fore_color.rgb = BLACK
     circle.line.fill.background()
     tf = circle.text_frame
     tf.paragraphs[0].text = num
-    tf.paragraphs[0].font.size = Pt(14)
+    tf.paragraphs[0].font.size = Pt(16)
     tf.paragraphs[0].font.color.rgb = BG_WHITE
     tf.paragraphs[0].font.bold = True
     tf.paragraphs[0].alignment = PP_ALIGN.CENTER
 
-    text(slide, left + Inches(0.15), Inches(2.1), card_w - Inches(0.3), Inches(0.25),
-         title, size=10, color=BLACK, bold=True)
-    text(slide, left + Inches(0.15), Inches(2.4), card_w - Inches(0.3), Inches(0.9),
-         desc, size=11, color=BODY)
+    text(slide, left + Inches(0.15), Inches(2.5), card_w - Inches(0.3), Inches(0.3),
+         title, size=11, color=BLACK, bold=True)
+    text(slide, left + Inches(0.15), Inches(2.85), card_w - Inches(0.3), Inches(0.9),
+         desc, size=12, color=BODY)
 
     # Arrow between steps
     if i < len(steps) - 1:
-        arrow_right(slide, left + card_w + Inches(0.02), Inches(2.35))
+        arrow_right(slide, left + card_w + Inches(0.02), Inches(2.7))
 
-# Scope + Controls
-add_rect(slide, Inches(0.8), Inches(3.85), Inches(5.8), Inches(2.55), CARD, BORDER)
-text(slide, Inches(1.1), Inches(4.0), Inches(5.0), Inches(0.3),
-     "Pilot Scope", size=14, color=BLACK, bold=True)
-bullet_list(slide, Inches(1.1), Inches(4.35), Inches(5.2), Inches(1.8),
-            ["AXS drivetrain + Hammerhead device support only",
-             "Dealer inbox and high-volume web forms",
-             "Compatibility and firmware issues first",
-             "Human approval on all customer-facing responses"],
-            BODY, 11)
-
-add_rect(slide, Inches(6.85), Inches(3.85), Inches(5.8), Inches(2.55), CARD, BORDER)
-text(slide, Inches(7.15), Inches(4.0), Inches(5.0), Inches(0.3),
-     "Risk Controls", size=14, color=BLACK, bold=True)
-bullet_list(slide, Inches(7.15), Inches(4.35), Inches(5.2), Inches(1.8),
-            ["Human approval for warranty and safety decisions",
-             "Answers sourced from approved docs only",
-             "Weekly quality review with rollback trigger",
-             "No automated warranty adjudication in Phase 1"],
-            BODY, 11)
+# Key constraint callout
+text(slide, Inches(0.8), Inches(4.6), Inches(11.5), Inches(0.35),
+     "AXS + Hammerhead support only  |  Human approval on every response  |  "
+     "Weekly quality review with rollback trigger",
+     size=13, color=BODY, align=PP_ALIGN.CENTER)
 
 # Hartsell validation quote
-quote_box(slide, Inches(0.8), Inches(6.6), Inches(11.8), Inches(0.55),
+quote_box(slide, Inches(0.8), Inches(5.5), Inches(11.8), Inches(0.55),
           "I would rather shut it down and restart than defend a mistake to Ken.",
           "Jordan Hartsell on the pull-the-plug criteria")
 
@@ -558,42 +494,23 @@ text(slide, Inches(0.8), Inches(1.35), Inches(11.5), Inches(0.35),
      size=13, color=BODY)
 
 smart_goals_full = [
-    ("G1", "Cut first-response time by 40%",
-     "Reduce average time-to-first-response on AXS and Hammerhead dealer "
-     "support tickets by 40% within 90 days, measured weekly against the "
-     "pre-pilot SLA baseline in Zendesk.",
-     "-40%", "vs. current SLA"),
-    ("G2", "Resolve 15% more tickets without escalation",
-     "Increase the share of tickets resolved without escalation by 15 "
-     "percentage points within 90 days, measured weekly against the current "
-     "escalation rate.",
-     "+15 pts", "vs. current rate"),
-    ("G3", "Reach 70%+ AI draft acceptance",
-     "Achieve a 70% or higher rate of support agents approving the AI-drafted "
-     "response (with minor or no edits) by day 90. Below 50% at day 45 "
-     "triggers a scope review.",
-     ">70%", "agent acceptance"),
-    ("G4", "Increase agent throughput by 25%",
-     "Raise tickets handled per agent per day by 25% within 90 days. "
-     "Confirms AI assistance translates into real productivity.",
-     "+25%", "tickets/agent/day"),
-    ("G5", "Hold customer satisfaction flat",
-     "Maintain or improve CSAT scores on AI-assisted tickets. Any sustained "
-     "decline triggers rollback. Trustpilot (1.6/5.0) should stabilize by "
-     "day 90.",
-     "No decline", "CSAT holds flat"),
+    ("G1", "Cut first-response time", "-40%", "Measured weekly vs. SLA baseline"),
+    ("G2", "Resolve more tickets without escalation", "+15 pts", "Measured weekly vs. current rate"),
+    ("G3", "AI draft acceptance rate", ">70%", "Below 50% at day 45 triggers scope review"),
+    ("G4", "Increase agent throughput", "+25%", "Tickets handled per agent per day"),
+    ("G5", "Hold customer satisfaction flat", "No decline", "Any sustained drop triggers rollback"),
 ]
 
-for i, (gid, title, desc, target, detail) in enumerate(smart_goals_full):
-    y = Inches(1.95) + Inches(i * 1.0)
+for i, (gid, title, target, detail) in enumerate(smart_goals_full):
+    y = Inches(2.0) + Inches(i * 0.85)
     # Alternating row background
     if i % 2 == 0:
-        add_rect(slide, Inches(0.8), y - Inches(0.05), Inches(11.7), Inches(0.95),
+        add_rect(slide, Inches(0.8), y - Inches(0.05), Inches(11.7), Inches(0.75),
                  LIGHT_GRAY_BG, None, 0.02)
 
     # Goal ID badge
     badge = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
-                                   Inches(0.95), y + Inches(0.08), Inches(0.5), Inches(0.35))
+                                   Inches(1.1), y + Inches(0.12), Inches(0.55), Inches(0.4))
     badge.fill.solid()
     badge.fill.fore_color.rgb = GANTT_ACCENT
     badge.line.fill.background()
@@ -602,28 +519,24 @@ for i, (gid, title, desc, target, detail) in enumerate(smart_goals_full):
     tf.word_wrap = True
     p = tf.paragraphs[0]
     p.text = gid
-    p.font.size = Pt(12)
+    p.font.size = Pt(14)
     p.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
     p.font.bold = True
     p.alignment = PP_ALIGN.CENTER
 
-    # Title and target on the same line
-    text(slide, Inches(1.6), y + Inches(0.05), Inches(6.5), Inches(0.35),
-         title, size=14, color=BLACK, bold=True)
-    text(slide, Inches(8.5), y + Inches(0.05), Inches(1.5), Inches(0.35),
-         target, size=16, color=RED, bold=True)
-    text(slide, Inches(10.0), y + Inches(0.08), Inches(2.2), Inches(0.3),
-         detail, size=10, color=GRAY)
+    # Title, target, and detail on one line
+    text(slide, Inches(1.9), y + Inches(0.08), Inches(5.5), Inches(0.4),
+         title, size=16, color=BLACK, bold=True)
+    text(slide, Inches(7.5), y + Inches(0.05), Inches(2.0), Inches(0.45),
+         target, size=22, color=RED, bold=True)
+    text(slide, Inches(9.5), y + Inches(0.15), Inches(3.0), Inches(0.35),
+         detail, size=11, color=GRAY)
 
-    # Description
-    text(slide, Inches(1.6), y + Inches(0.42), Inches(10.5), Inches(0.45),
-         desc, size=11, color=BODY)
-
-# Kill criteria callout
-quote_box(slide, Inches(0.8), Inches(6.95), Inches(11.8), Inches(0.35),
-          "Kill criteria: 2 weeks of quality degradation, any safety error reaching "
-          "a dealer without review, or dealer opt-out above 15%.",
-          "")
+# Kill criteria - simple text
+text(slide, Inches(0.8), Inches(6.4), Inches(11.7), Inches(0.3),
+     "Kill criteria: 2 weeks quality drop, any safety error reaching a dealer, "
+     "or dealer opt-out above 15%",
+     size=12, color=GRAY, align=PP_ALIGN.CENTER)
 
 slide_footer(slide, page)
 
@@ -718,38 +631,11 @@ for i, (label, goal_num, start, dur, color, desc) in enumerate(gantt_rows):
              int(bar_w) - Inches(0.2), Inches(0.24),
              desc, size=7, color=RGBColor(0xFF, 0xFF, 0xFF) if color == GANTT_ACCENT else BLACK)
 
-# Legend at bottom
-text(slide, Inches(0.8), Inches(6.0), Inches(11), Inches(0.25),
-     "G1-G5 = SMART Goals  |  Day-45 checkpoint triggers scope review if "
-     "draft acceptance < 50%  |  Day-90 is the formal go/no-go decision",
-     size=9, color=GRAY)
-
-# Year-1 phasing bar at very bottom
-text(slide, Inches(0.8), Inches(6.45), Inches(2.5), Inches(0.25),
-     "Full Year-1 Phasing", size=10, color=BLACK, bold=True)
-
-yr_phases = [
-    ("Phase 1: Support Pilot", 0, 3, GANTT_ACCENT),
-    ("Phase 2: Data Foundation", 3, 3, GANTT_LIGHT),
-    ("Phase 3: Revenue", 6, 6, GANTT_LIGHT),
-]
-phase_left = Inches(3.5)
-phase_width = Inches(9.0)
-month_px = phase_width / 12
-
-for plabel, pstart, pdur, pcolor in yr_phases:
-    px = phase_left + month_px * pstart
-    pw = month_px * pdur
-    pbar = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
-                                  int(px), Inches(6.45), int(pw), Inches(0.25))
-    pbar.fill.solid()
-    pbar.fill.fore_color.rgb = pcolor
-    pbar.line.fill.background()
-    pbar.adjustments[0] = 0.15
-    text(slide, int(px) + Inches(0.1), Inches(6.45),
-         int(pw) - Inches(0.15), Inches(0.25),
-         plabel, size=7,
-         color=RGBColor(0xFF, 0xFF, 0xFF) if pcolor == GANTT_ACCENT else BLACK)
+# Minimal legend
+text(slide, Inches(0.8), Inches(6.1), Inches(11), Inches(0.25),
+     "Day-45 checkpoint: scope review if draft acceptance < 50%  |  "
+     "Day-90: go / no-go decision",
+     size=9, color=GRAY, align=PP_ALIGN.CENTER)
 
 slide_footer(slide, page)
 
@@ -763,36 +649,25 @@ set_slide_bg(slide)
 slide_header(slide, "THE RETURN",
              "$10.2M net value in Year 1 on $2.7M spend")
 
-# LEFT: Support savings math and scenario range
-text(slide, Inches(0.8), Inches(1.45), Inches(5.5), Inches(0.3),
-     "Support Pilot Savings", size=16, color=BLACK, bold=True)
-
-add_rect(slide, Inches(0.8), Inches(1.9), Inches(5.5), Inches(1.6), CARD, BORDER)
-text(slide, Inches(1.1), Inches(2.0), Inches(5.0), Inches(1.2),
-     "120 support staff x $90K avg. cost\n"
-     "x 60% AI-addressable work\n"
-     "x 35% productivity gain\n"
-     "x 70% adoption\n"
-     "= $1.6M Year-1 support savings",
-     size=12, color=BODY)
-
-text(slide, Inches(0.8), Inches(3.75), Inches(5.5), Inches(0.3),
-     "Scenario Range (All Phases)", size=16, color=BLACK, bold=True)
+# LEFT: Scenario range only - clean and spacious
+text(slide, Inches(0.8), Inches(1.6), Inches(5.5), Inches(0.3),
+     "Scenario Range", size=18, color=BLACK, bold=True)
 
 scenarios = [
-    ("Conservative", "$4.5M net", "2.8x ROI"),
-    ("Expected", "$10.2M net", "3.8x ROI"),
-    ("Upside", "$22.5M net", "6.4x ROI"),
+    ("Conservative", "$4.5M", "2.8x"),
+    ("Expected", "$10.2M", "3.8x"),
+    ("Upside", "$22.5M", "6.4x"),
 ]
 for i, (label, value, roi) in enumerate(scenarios):
-    y = Inches(4.2) + Inches(i * 0.55)
-    if i % 2 == 0:
-        add_rect(slide, Inches(0.8), y - Inches(0.05), Inches(5.5), Inches(0.5),
-                 LIGHT_GRAY_BG, None, 0.02)
-    text(slide, Inches(1.0), y, Inches(1.8), Inches(0.4), label, size=13, color=GRAY)
-    text(slide, Inches(2.8), y, Inches(1.8), Inches(0.4), value,
-         size=15, color=BLACK, bold=True)
-    text(slide, Inches(4.6), y, Inches(1.5), Inches(0.4), roi, size=12, color=GRAY)
+    y = Inches(2.3) + Inches(i * 0.9)
+    if i == 1:  # Highlight expected case
+        add_rect(slide, Inches(0.8), y - Inches(0.1), Inches(5.5), Inches(0.8),
+                 HIGHLIGHT_BG, RED, 0.02)
+    text(slide, Inches(1.0), y, Inches(2.0), Inches(0.5), label, size=14, color=GRAY)
+    text(slide, Inches(3.0), y, Inches(1.8), Inches(0.5), value,
+         size=24, color=BLACK, bold=True)
+    text(slide, Inches(4.8), y + Inches(0.05), Inches(1.2), Inches(0.4),
+         roi + " ROI", size=13, color=GRAY)
 
 # RIGHT: Financial summary
 text(slide, Inches(7.0), Inches(1.45), Inches(5.5), Inches(0.3),
@@ -843,35 +718,7 @@ text(slide, Inches(0.8), Inches(1.35), Inches(11.5), Inches(0.35),
      "guardrails unlock the innovation no competitor can replicate.",
      size=13, color=BODY)
 
-# Phase timeline across the top
-phases = [
-    ("PHASE 1", "0-90 days", "Support Pilot",
-     "AI-assisted support\nfor AXS + Hammerhead"),
-    ("PHASE 2", "90-180 days", "Data Foundation",
-     "Unified data layer\n+ demand forecasting"),
-    ("PHASE 3", "180-365 days", "Revenue Acceleration",
-     "OEM automation +\npart recommendations"),
-    ("PHASE 4", "Year 2+", "AI-First Culture",
-     "AXS Intelligence\n+ predictive maintenance"),
-]
-
-for i, (phase, timing, title, desc) in enumerate(phases):
-    left = Inches(0.8 + i * 3.1)
-    card_w = Inches(2.85)
-    bg_color = HIGHLIGHT_BG if i == 0 else CARD
-    border_color = RED if i == 0 else BORDER
-    add_rect(slide, left, Inches(1.95), card_w, Inches(1.55), bg_color, border_color)
-    text(slide, left + Inches(0.2), Inches(2.05), card_w - Inches(0.4), Inches(0.2),
-         f"{phase}  |  {timing}", size=9,
-         color=RED if i == 0 else GRAY, bold=True)
-    text(slide, left + Inches(0.2), Inches(2.3), card_w - Inches(0.4), Inches(0.3),
-         title, size=14, color=BLACK, bold=True)
-    text(slide, left + Inches(0.2), Inches(2.65), card_w - Inches(0.4), Inches(0.65),
-         desc, size=11, color=BODY)
-    if i < len(phases) - 1:
-        arrow_right(slide, left + card_w + Inches(0.02), Inches(2.55))
-
-# 2031 vision cards (2x2)
+# 2031 vision cards
 visions = [
     ("AXS Intelligence Platform",
      "Unified rider dashboard: power, gearing, suspension, heart rate "
@@ -888,45 +735,45 @@ visions = [
 ]
 
 # AXS Intelligence Platform is the centerpiece - full width, highlighted
-axs_top = Inches(3.85)
+axs_top = Inches(2.0)
 axs_w = Inches(11.7)
-axs_h = Inches(1.3)
+axs_h = Inches(1.5)
 add_rect(slide, Inches(0.8), axs_top, axs_w, axs_h, HIGHLIGHT_BG, RED)
 hbar = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE,
                                Inches(0.8), axs_top, Pt(4), axs_h)
 hbar.fill.solid()
 hbar.fill.fore_color.rgb = RED
 hbar.line.fill.background()
-text(slide, Inches(1.1), axs_top + Inches(0.08), Inches(4.0), Inches(0.2),
-     "THE UNLOCK", size=9, color=RED, bold=True)
-text(slide, Inches(1.1), axs_top + Inches(0.3), Inches(5.0), Inches(0.35),
-     visions[0][0], size=16, color=BLACK, bold=True)
-text(slide, Inches(1.1), axs_top + Inches(0.7), Inches(10.5), Inches(0.5),
-     visions[0][1], size=12, color=BODY)
+text(slide, Inches(1.2), axs_top + Inches(0.12), Inches(4.0), Inches(0.2),
+     "THE UNLOCK", size=10, color=RED, bold=True)
+text(slide, Inches(1.2), axs_top + Inches(0.4), Inches(5.0), Inches(0.4),
+     visions[0][0], size=20, color=BLACK, bold=True)
+text(slide, Inches(1.2), axs_top + Inches(0.9), Inches(10.5), Inches(0.5),
+     visions[0][1], size=13, color=BODY)
 
-# Remaining 3 vision cards in a row below
+# Remaining 3 vision cards in a row below with more space
 for i, (title, desc) in enumerate(visions[1:]):
     left = Inches(0.8) + Inches(i * 4.0)
-    top = Inches(5.35)
+    top = Inches(4.0)
     vc_w = Inches(3.75)
-    vc_h = Inches(1.15)
+    vc_h = Inches(1.3)
     add_rect(slide, left, top, vc_w, vc_h, CARD, BORDER)
-    text(slide, left + Inches(0.2), top + Inches(0.1), vc_w - Inches(0.4), Inches(0.3),
-         title, size=12, color=BLACK, bold=True)
-    text(slide, left + Inches(0.2), top + Inches(0.4), vc_w - Inches(0.4), Inches(0.6),
-         desc, size=10, color=BODY)
+    text(slide, left + Inches(0.25), top + Inches(0.15), vc_w - Inches(0.5), Inches(0.3),
+         title, size=13, color=BLACK, bold=True)
+    text(slide, left + Inches(0.25), top + Inches(0.5), vc_w - Inches(0.5), Inches(0.65),
+         desc, size=11, color=BODY)
 
-# Flywheel
-add_rect(slide, Inches(0.8), Inches(6.65), Inches(11.7), Inches(0.4), CARD, BORDER, 0.1)
+# Flywheel - more breathing room
+add_rect(slide, Inches(0.8), Inches(5.8), Inches(11.7), Inches(0.45), CARD, BORDER, 0.1)
 red_bar = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE,
-                                 Inches(0.8), Inches(6.65), Pt(4), Inches(0.4))
+                                 Inches(0.8), Inches(5.8), Pt(4), Inches(0.45))
 red_bar.fill.solid()
 red_bar.fill.fore_color.rgb = RED
 red_bar.line.fill.background()
-text(slide, Inches(1.2), Inches(6.68), Inches(11.0), Inches(0.3),
+text(slide, Inches(1.2), Inches(5.84), Inches(11.0), Inches(0.35),
      "Hardware sells data access  \u2192  Data improves performance  "
      "\u2192  Performance sells hardware",
-     size=13, color=BLACK, bold=True, align=PP_ALIGN.CENTER)
+     size=14, color=BLACK, bold=True, align=PP_ALIGN.CENTER)
 
 slide_footer(slide, page)
 
