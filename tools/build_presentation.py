@@ -213,18 +213,18 @@ text(slide, Inches(0.8), Inches(1.5), Inches(11), Inches(0.5),
 
 # Product category cards (text only) - matches ecosystem slide order
 sram_cards = [
-    ("Gears + Brakes", "SRAM",
-     "The parts that make\na bike shift and stop"),
+    ("Drivetrains + Braking", "SRAM",
+     "Gears, chains, and disc\nbrakes for every bike"),
     ("Suspension", "RockShox",
-     "Shock absorbers that\nsmooth out rough terrain"),
-    ("Wheels + Handlebars", "Zipp",
-     "Lightweight wheels\nbuilt for speed"),
+     "Forks and shocks that\nabsorb trail impacts"),
+    ("Wheels + Cockpit", "Zipp",
+     "Aero wheels, handlebars,\nand stems"),
     ("Power Meters", "Quarq",
-     "Sensors that measure\nhow hard a rider pedals"),
+     "Sensors that measure\nrider output in watts"),
     ("GPS Bike Computer", "Hammerhead",
-     "On-bike screen for\nnavigation and training data"),
+     "On-bike computer for\nnavigation and training data"),
     ("Pedals", "TIME",
-     "Pedal systems that lock\ninto the rider's shoes"),
+     "Clip-in pedal systems\nfor road and mountain"),
 ]
 
 n_cards = len(sram_cards)
@@ -279,9 +279,9 @@ for i, (label, value, sub, vc) in enumerate(metrics_data):
 
 # The ecosystem story - horizontal flow of brands
 eco_items = [
-    ("SRAM", "Gears + Brakes"),
+    ("SRAM", "Drivetrains + Braking"),
     ("RockShox", "Suspension"),
-    ("Zipp", "Wheels + Handlebars"),
+    ("Zipp", "Wheels + Cockpit"),
     ("Quarq", "Power Meters"),
     ("Hammerhead", "GPS Bike Computer"),
     ("TIME", "Pedals"),
@@ -301,7 +301,7 @@ for i, (brand, desc) in enumerate(eco_items):
 add_rect(slide, Inches(0.8), Inches(4.5), Inches(12.1), Inches(0.35),
          CARD, BORDER, 0.1)
 text(slide, Inches(1.2), Inches(4.52), Inches(11.3), Inches(0.3),
-     "AXS Wireless Platform  |  All 6 brands connect wirelessly and share data",
+     "AXS Wireless Ecosystem  |  All 6 brands connect wirelessly and share data",
      size=11, color=BLACK, bold=True, align=PP_ALIGN.CENTER)
 
 # Interview quote - competitive advantage
@@ -332,18 +332,18 @@ FUNC_COLORS = {
 initiative_rows = [
     ("ENGINEERING", [
         ("Generative Design", "Physical testing is slow and expensive", False),
-        ("AXS Intelligence", "Rider data is collected but unused", False),
+        ("AXS Intelligence", "Telemetry data is collected but unused", False),
         ("AI-Tuned Components", "Suspension and shifting are static", False),
     ]),
     ("SALES", [
-        ("Bike Manufacturer Proposals", "Proposal cycles are slow, manual", False),
+        ("OEM Proposal Automation", "Proposal cycles are slow, manual", False),
         ("Part Recommendations", "No guided upsell at point of service", False),
-        ("Online Store Personalization", "SRAM's apparel brand has no targeting", False),
+        ("DTC Personalization", "Velocio has no targeting capability", False),
     ]),
     ("SUPPLY CHAIN", [
         ("Demand Forecasting", "No forecasting system exists today", False),
         ("Inventory Allocation", "Stockouts and rush shipping losses", False),
-        ("Customer Analytics", "E-commerce data is siloed, unused", False),
+        ("Customer Analytics", "Shopify data is siloed, unused", False),
     ]),
     ("SUPPORT", [
         ("AI Support Agent", "70% of dealer questions are repetitive", True),
@@ -471,8 +471,8 @@ slide_header(slide, "THE PROBLEM",
              "Support quality drives churn, not product quality")
 
 text(slide, Inches(0.8), Inches(1.35), Inches(11), Inches(0.35),
-     "Riders love SRAM hardware. They struggle with software updates, "
-     "part compatibility, and warranty claims.",
+     "Riders love SRAM hardware. They struggle with firmware updates, "
+     "part compatibility, and warranty resolution.",
      size=13, color=BODY)
 
 metric_card(slide, Inches(0.8), Inches(2.2), Inches(3.6), Inches(1.5),
@@ -482,7 +482,7 @@ metric_card(slide, Inches(4.9), Inches(2.2), Inches(3.6), Inches(1.5),
             "AUTOMATABLE", "~70%", BLACK,
             "Questions follow documented patterns")
 metric_card(slide, Inches(9.0), Inches(2.2), Inches(3.6), Inches(1.5),
-            "TOP COMPLAINTS", "Software Updates + Setup", ACCENT_RED_SOFT,
+            "TOP COMPLAINTS", "Firmware + Pairing", ACCENT_RED_SOFT,
             "Reddit, app stores, Trustpilot")
 
 slide_footer(slide, page)
@@ -494,8 +494,8 @@ slide_header(slide, "THE PROBLEM",
              "Support quality drives churn, not product quality")
 
 text(slide, Inches(0.8), Inches(1.35), Inches(11), Inches(0.35),
-     "Riders love SRAM hardware. They struggle with software updates, "
-     "part compatibility, and warranty claims.",
+     "Riders love SRAM hardware. They struggle with firmware updates, "
+     "part compatibility, and warranty resolution.",
      size=13, color=BODY)
 
 metric_card(slide, Inches(0.8), Inches(2.2), Inches(3.6), Inches(1.5),
@@ -505,7 +505,7 @@ metric_card(slide, Inches(4.9), Inches(2.2), Inches(3.6), Inches(1.5),
             "AUTOMATABLE", "~70%", BLACK,
             "Questions follow documented patterns")
 metric_card(slide, Inches(9.0), Inches(2.2), Inches(3.6), Inches(1.5),
-            "TOP COMPLAINTS", "Software Updates + Setup", ACCENT_RED_SOFT,
+            "TOP COMPLAINTS", "Firmware + Pairing", ACCENT_RED_SOFT,
             "Reddit, app stores, Trustpilot")
 
 quote_box(slide, Inches(0.8), Inches(4.8), Inches(11.8), Inches(0.85),
@@ -523,10 +523,10 @@ slide_footer(slide, page)
 page += 1
 
 steps = [
-    ("1", "TICKET IN", "Dealer or rider\nsubmits a question"),
-    ("2", "AI RETRIEVES", "AI searches SRAM's\napproved documents"),
-    ("3", "AI DRAFTS", "AI writes a\nproposed answer"),
-    ("4", "HUMAN REVIEWS", "Support agent approves\nbefore sending"),
+    ("1", "TICKET IN", "Dealer or rider\nsubmits via Zendesk"),
+    ("2", "AI RETRIEVES", "Amazon Kendra searches\napproved documentation"),
+    ("3", "AI DRAFTS", "Amazon Bedrock drafts\nresponse from knowledge base"),
+    ("4", "HUMAN REVIEWS", "Agent approves\nbefore sending"),
     ("5", "QUALITY LOGGED", "Metrics tracked;\nweekly review"),
 ]
 
@@ -583,7 +583,7 @@ for build in range(2):
 page += 1
 
 smart_goals_full = [
-    ("G1", "Cut first-response time", "-40%", "Measured weekly vs. current baseline"),
+    ("G1", "Cut first-response time", "-40%", "Measured weekly vs. SLA baseline"),
     ("G2", "Resolve more tickets without escalation", "+15 pts", "Measured weekly vs. current rate"),
     ("G3", "AI draft acceptance rate", ">70%", "Below 50% at day 45 triggers scope review"),
     ("G4", "Increase agent throughput", "+25%", "Tickets handled per agent per day"),
@@ -653,9 +653,9 @@ page += 1
 # Phase C (checkpoints): rows 8-10
 gantt_rows = [
     ("Setup + Integration", "", 0, 1, GANTT_LIGHT,
-     "Connect support system to AI tools; set baseline metrics"),
+     "Zendesk + Kendra + Bedrock integration; baseline metrics"),
     ("Knowledge Base Indexing", "", 0, 0.7, GANTT_LIGHT,
-     "Load AXS + Hammerhead docs into AI search"),
+     "Index AXS + Hammerhead docs in Kendra"),
     ("AI Draft Rollout (AXS)", "G3", 0.7, 1.3, GANTT_ACCENT,
      "AI drafts responses; agents review 100%"),
     ("AI Draft Rollout (Hammerhead)", "G3", 1.2, 1.0, GANTT_ACCENT,
@@ -666,7 +666,7 @@ gantt_rows = [
      "Weekly measurement vs. baseline"),
     ("Throughput Measurement", "G4", 1.0, 2.0, GANTT_ACCENT,
      "Tickets/agent/day tracked weekly"),
-    ("Satisfaction Monitoring", "G5", 0.5, 2.5, GANTT_ACCENT,
+    ("CSAT Monitoring", "G5", 0.5, 2.5, GANTT_ACCENT,
      "No decline for 2 consecutive periods"),
     ("Weekly Quality Reviews", "", 0.5, 2.5, GRAY,
      "Rollback trigger if quality drops 2 weeks"),
@@ -816,19 +816,19 @@ page += 1
 
 visions = [
     ("AXS Intelligence Platform",
-     "One dashboard showing power, gearing, suspension, and heart rate. "
-     "No competitor sells enough product categories to build this.",
+     "Unified rider dashboard: power, gearing, suspension, heart rate "
+     "in one view. No competitor has the product breadth to build this.",
      "NEW REVENUE: Premium subscription tier"),
     ("Predictive Maintenance",
-     "Connected parts predict when chains and brake pads need replacement "
-     "before they fail. One-time sales become recurring revenue.",
+     "Connected components predict chain and brake pad replacement "
+     "before failure. Installed base becomes recurring revenue.",
      "NEW REVENUE: Per-device monitoring subscription"),
     ("AI-Tuned Performance",
-     "Suspension auto-adjusts to terrain. Gears optimize for rider "
+     "Suspension auto-adjusts to terrain. Shifting optimizes for rider "
      "power. Products improve continuously after purchase.",
      "NEW REVENUE: Premium optimization tier"),
     ("Dealer Intelligence",
-     "Usage data tells bike shops which parts are wearing out in their "
+     "Telemetry tells dealers which parts approach end-of-life in their "
      "area. Proactive ordering replaces reactive.",
      "NEW REVENUE: Dealer analytics license"),
 ]
@@ -841,7 +841,7 @@ for build in range(2):
 
     text(slide, Inches(0.8), Inches(1.35), Inches(11.5), Inches(0.35),
          "Each capability creates a new recurring revenue stream. "
-         "SRAM's millions of connected bike parts become a software platform, not a one-time sale.",
+         "SRAM's installed base of connected components becomes a platform, not a one-time sale.",
          size=13, color=BODY)
 
     # AXS Intelligence Platform - always shown
@@ -919,9 +919,8 @@ enabler_cols = [
         ("Today", "Good data in pockets, messy data everywhere\n"
          "else. 18 months of consolidation underway.\n"
          "AXS + Hammerhead data is pilot-ready."),
-        ("Needed", "Unified data layer linking customer records,\n"
-         "inventory, and product usage data.\n"
-         "Foundation for Phase 2-4."),
+        ("Needed", "Unified data layer linking CRM, inventory,\n"
+         "and telemetry. Foundation for Phase 2-4."),
     ]),
     ("LEADERSHIP", [
         ("Phase 1", "CEO assigns one accountable business owner\n"
@@ -977,7 +976,7 @@ actions = [
      "engineer. Human approval on all outputs. Weekly quality reviews with "
      "defined rollback trigger."),
     ("2", "Begin Data Infrastructure Planning",
-     "Unified data layer connecting e-commerce, support systems, and product usage data. "
+     "Unified data layer connecting Shopify, support systems, and telemetry. "
      "Foundation for Phase 2 forecasting and Phase 4 AXS Intelligence platform."),
     ("3", "Hold Sequencing Discipline",
      "Bounded, well-defined problems first. Broader transformation after measured "
@@ -1161,21 +1160,21 @@ phase_details = [
     ("Phase 1: Support Pilot", "0-90 days",
      ["1 integration engineer (internal or contractor)",
       "1 product owner from support organization",
-      "AI support tools (document search + response drafting)",
+      "Zendesk AI + Amazon Kendra + Bedrock",
       "No new AI/ML hires required"]),
     ("Phase 2: Data Foundation", "90-180 days",
      ["Add product managers and QA capacity",
-      "Unified data layer linking customers + inventory + usage",
-      "AI-powered demand forecasting",
-      "Business systems evaluation"]),
+      "Unified data layer linking CRM + inventory + telemetry",
+      "AWS SageMaker for forecasting",
+      "ERP system evaluation"]),
     ("Phase 3: Revenue Acceleration", "180-365 days",
-     ["AI-assisted proposals for bike manufacturer deals",
-      "Part compatibility and recommendation engine",
+     ["Salesforce Einstein/Agentforce for OEM proposals",
+      "Compatibility rules engine for recommendations",
       "Cross-functional product + sales alignment",
       "Expected $2.5M from 1% win-rate improvement"]),
     ("Phase 4: AI-First Culture", "Year 2+",
      ["AXS Intelligence Platform development",
-      "AI-simulated product testing (digital twin)",
+      "Digital twin and generative design capability",
       "Predictive maintenance subscription model",
       "AI-adjusted component performance"]),
 ]
