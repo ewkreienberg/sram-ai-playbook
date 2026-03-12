@@ -244,10 +244,10 @@ for i, (label, brand, desc) in enumerate(sram_cards):
     text(slide, int(cx), intro_card_top + Inches(0.2), int(intro_card_w), Inches(0.25),
          brand, size=10, color=GRAY, bold=True, align=PP_ALIGN.CENTER)
     # Product category label
-    text(slide, int(cx), intro_card_top + Inches(0.55), int(intro_card_w), Inches(0.4),
-         label, size=18, color=BLACK, bold=True, align=PP_ALIGN.CENTER)
+    text(slide, int(cx), intro_card_top + Inches(0.55), int(intro_card_w), Inches(0.5),
+         label, size=16, color=BLACK, bold=True, align=PP_ALIGN.CENTER)
     # Description
-    text(slide, int(cx) + Inches(0.15), intro_card_top + Inches(1.1),
+    text(slide, int(cx) + Inches(0.15), intro_card_top + Inches(1.2),
          int(intro_card_w) - Inches(0.3), Inches(1.0),
          desc, size=11, color=BODY, align=PP_ALIGN.CENTER)
 
@@ -631,155 +631,171 @@ slide_footer(slide, page)
 
 
 # ----------------------------------------------------------
-# SLIDE: Success Metrics (replaces old SMART goals)
+# SLIDE 6b: SMART Goals (progressive build - one goal per click)
 # ----------------------------------------------------------
 page += 1
 
-slide = prs.slides.add_slide(blank)
-set_slide_bg(slide)
-slide_header(slide, "THE GOALS",
-             "Four metrics measured weekly, two checkpoints with teeth")
-
-text(slide, Inches(0.8), Inches(1.35), Inches(11.5), Inches(0.35),
-     "Hartsell set the bar: \"One workflow measurably faster, measurably more "
-     "accurate, with no regression in dealer satisfaction scores.\"",
-     size=13, color=BODY)
-
-# Four metric cards - concrete before/after
-goals = [
-    ("FIRST-RESPONSE TIME",
-     "~4 hrs today", "Under 2.5 hrs",
-     "AI pre-drafts answers so agents\nedit instead of write from scratch"),
-    ("FIRST-CONTACT RESOLUTION",
-     "Baseline TBD", "+15 points",
-     "Better answers on the first try\nmeans fewer back-and-forth exchanges"),
-    ("AI DRAFT ACCEPTANCE",
-     "N/A (new metric)", ">70%",
-     "Agents approve the AI draft as-is\nor with minor edits. Below 50%\nat day 45 triggers scope review."),
-    ("DEALER SATISFACTION",
-     "Current baseline", "No decline",
-     "Any sustained drop triggers\nimmediate rollback"),
+smart_goals_full = [
+    ("G1", "Cut first-response time", "-40%", "Measured weekly vs. SLA baseline"),
+    ("G2", "Resolve more tickets without escalation", "+15 pts", "Measured weekly vs. current rate"),
+    ("G3", "AI draft acceptance rate", ">70%", "Below 50% at day 45 triggers scope review"),
+    ("G4", "Increase agent throughput", "+25%", "Tickets handled per agent per day"),
+    ("G5", "Hold customer satisfaction flat", "No decline", "Any sustained drop triggers rollback"),
 ]
 
-for i, (label, before, target, explanation) in enumerate(goals):
-    col = i % 2
-    row = i // 2
-    left = Inches(0.8) + Inches(col * 6.1)
-    top = Inches(2.0) + Inches(row * 2.3)
-    cw = Inches(5.85)
-    ch = Inches(2.1)
+for goals_shown in range(1, 6):  # 1, 2, 3, 4, 5
+    slide = prs.slides.add_slide(blank)
+    set_slide_bg(slide)
+    slide_header(slide, "THE GOALS",
+                 "Five SMART goals define pilot success at day 90")
 
-    add_rect(slide, left, top, cw, ch, CARD, BORDER)
+    text(slide, Inches(0.8), Inches(1.35), Inches(11.5), Inches(0.35),
+         "Hartsell set the bar: \"One workflow measurably faster, measurably more "
+         "accurate, with no regression in dealer satisfaction scores.\"",
+         size=13, color=BODY)
 
-    # Label
-    text(slide, left + Inches(0.25), top + Inches(0.1), Inches(3.0), Inches(0.2),
-         label, size=9, color=GRAY, bold=True)
+    for i, (gid, title, target, detail) in enumerate(smart_goals_full):
+        if i >= goals_shown:
+            break
+        y = Inches(2.0) + Inches(i * 0.85)
+        if i % 2 == 0:
+            add_rect(slide, Inches(0.8), y - Inches(0.05), Inches(11.7), Inches(0.75),
+                     LIGHT_GRAY_BG, None, 0.02)
 
-    # Before → After
-    text(slide, left + Inches(0.25), top + Inches(0.4), Inches(2.2), Inches(0.35),
-         before, size=13, color=GRAY)
-    arrow_right(slide, left + Inches(2.5), top + Inches(0.42), Inches(0.25), Inches(0.25))
-    text(slide, left + Inches(2.85), top + Inches(0.35), Inches(2.5), Inches(0.4),
-         target, size=20, color=RED, bold=True)
+        badge = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
+                                       Inches(1.1), y + Inches(0.12),
+                                       Inches(0.55), Inches(0.4))
+        badge.fill.solid()
+        badge.fill.fore_color.rgb = GANTT_ACCENT
+        badge.line.fill.background()
+        badge.adjustments[0] = 0.15
+        tf = badge.text_frame
+        tf.word_wrap = True
+        p = tf.paragraphs[0]
+        p.text = gid
+        p.font.size = Pt(14)
+        p.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
+        p.font.bold = True
+        p.alignment = PP_ALIGN.CENTER
 
-    # Explanation
-    text(slide, left + Inches(0.25), top + Inches(0.9), cw - Inches(0.5), Inches(1.0),
-         explanation, size=11, color=BODY)
+        text(slide, Inches(1.9), y + Inches(0.08), Inches(5.5), Inches(0.4),
+             title, size=16, color=BLACK, bold=True)
+        text(slide, Inches(7.5), y + Inches(0.05), Inches(2.0), Inches(0.45),
+             target, size=22, color=RED, bold=True)
+        text(slide, Inches(9.5), y + Inches(0.15), Inches(3.0), Inches(0.35),
+             detail, size=11, color=GRAY)
 
-slide_footer(slide, page)
+    # Show kill criteria only on final build
+    if goals_shown == 5:
+        text(slide, Inches(0.8), Inches(6.4), Inches(11.7), Inches(0.3),
+             "Kill criteria: 2 weeks quality drop, any safety error reaching a dealer, "
+             "or dealer opt-out above 15%",
+             size=12, color=GRAY, align=PP_ALIGN.CENTER)
+
+    slide_footer(slide, page)
 
 
 # ----------------------------------------------------------
-# SLIDE: 90-Day Timeline (replaces ugly Gantt)
+# SLIDE 6c: Gantt Chart (progressive build - 3 slides)
 # ----------------------------------------------------------
 page += 1
 
-slide = prs.slides.add_slide(blank)
-set_slide_bg(slide)
-slide_header(slide, "THE TIMELINE",
-             "Three phases, two checkpoints, one decision at day 90")
-
-# Three phase cards across the top
-phases = [
-    ("PHASE A", "Weeks 1-4", "Build + Baseline",
-     GANTT_LIGHT, BLACK,
-     ["Connect Zendesk to Amazon Kendra + Bedrock",
-      "Index AXS and Hammerhead documentation",
-      "Measure current response times, resolution rates,\n"
-      "and satisfaction scores as the baseline"]),
-    ("PHASE B", "Weeks 5-10", "Execute + Measure",
-     GANTT_ACCENT, RGBColor(0xFF, 0xFF, 0xFF),
-     ["AI drafts responses for AXS tickets (week 5)",
-      "Expand to Hammerhead tickets (week 8)",
-      "Agents review 100% of AI drafts before sending\n"
-      "Weekly measurement against all four goals"]),
-    ("PHASE C", "Weeks 11-13", "Evaluate + Decide",
-     CARD, BLACK,
-     ["Compile 90-day results against targets",
-      "Present findings to CEO and support leadership",
-      "Decision: scale to more products, adjust scope,\n"
-      "or stop and redirect investment"]),
+# Gantt rows grouped by phase:
+# Phase A (setup): rows 0-1
+# Phase B (execution): rows 2-7
+# Phase C (checkpoints): rows 8-10
+gantt_rows = [
+    ("Setup + Integration", "", 0, 1, GANTT_LIGHT,
+     "Zendesk + Kendra + Bedrock integration; baseline metrics"),
+    ("Knowledge Base Indexing", "", 0, 0.7, GANTT_LIGHT,
+     "Index AXS + Hammerhead docs in Kendra"),
+    ("AI Draft Rollout (AXS)", "G3", 0.7, 1.3, GANTT_ACCENT,
+     "AI drafts responses; agents review 100%"),
+    ("AI Draft Rollout (Hammerhead)", "G3", 1.2, 1.0, GANTT_ACCENT,
+     "Expand to Hammerhead device tickets"),
+    ("Response Time Tracking", "G1", 0.5, 2.5, GANTT_ACCENT,
+     "Weekly measurement vs. SLA baseline"),
+    ("Escalation Rate Tracking", "G2", 0.5, 2.5, GANTT_ACCENT,
+     "Weekly measurement vs. baseline"),
+    ("Throughput Measurement", "G4", 1.0, 2.0, GANTT_ACCENT,
+     "Tickets/agent/day tracked weekly"),
+    ("CSAT Monitoring", "G5", 0.5, 2.5, GANTT_ACCENT,
+     "No decline for 2 consecutive periods"),
+    ("Weekly Quality Reviews", "", 0.5, 2.5, GRAY,
+     "Rollback trigger if quality drops 2 weeks"),
+    ("Day-45 Checkpoint", "", 1.5, 0.15, RED,
+     "Scope review if draft acceptance <50%"),
+    ("Day-90 Go/No-Go", "", 2.85, 0.15, RED,
+     "Decision: scale, adjust, or stop"),
 ]
 
-phase_w = Inches(3.75)
-phase_gap = Inches(0.2)
+# Build cutoffs: show rows 0..N
+gantt_builds = [2, 8, 11]  # setup, +execution, +checkpoints
 
-for i, (label, timing, title, bg_col, txt_col, items) in enumerate(phases):
-    left = Inches(0.8) + Inches(i * (3.75 + 0.2))
-    top = Inches(1.5)
-    ph = Inches(4.0)
+for build_idx, rows_shown in enumerate(gantt_builds):
+    slide = prs.slides.add_slide(blank)
+    set_slide_bg(slide)
+    slide_header(slide, "THE TIMELINE",
+                 "90-day pilot mapped to SMART goals")
 
-    add_rect(slide, left, top, phase_w, ph, bg_col,
-             BORDER if bg_col != GANTT_ACCENT else None)
+    gantt_left = Inches(4.0)
+    gantt_width = Inches(8.5)
+    month_w = gantt_width / 3
 
-    text(slide, left + Inches(0.25), top + Inches(0.12),
-         Inches(1.5), Inches(0.2),
-         label, size=9, color=txt_col, bold=True)
-    text(slide, left + Inches(2.0), top + Inches(0.12),
-         Inches(1.5), Inches(0.2),
-         timing, size=9, color=txt_col, align=PP_ALIGN.RIGHT)
+    for mi, mlabel in enumerate(["Month 1", "Month 2", "Month 3"]):
+        x = gantt_left + month_w * mi
+        text(slide, x, Inches(1.4), month_w, Inches(0.25),
+             mlabel, size=10, color=GRAY, bold=True, align=PP_ALIGN.CENTER)
 
-    text(slide, left + Inches(0.25), top + Inches(0.45),
-         phase_w - Inches(0.5), Inches(0.35),
-         title, size=16, color=txt_col, bold=True)
+    for di in range(1, 3):
+        x = gantt_left + month_w * di
+        divider = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE,
+                                         x, Inches(1.65), Pt(1), Inches(5.0))
+        divider.fill.solid()
+        divider.fill.fore_color.rgb = CARD_BORDER
+        divider.line.fill.background()
 
-    bullet_color = txt_col if bg_col == GANTT_ACCENT else BODY
-    bullet_list(slide, left + Inches(0.25), top + Inches(0.95),
-                phase_w - Inches(0.5), Inches(2.8),
-                items, bullet_color, 11)
+    row_height = Inches(0.38)
+    for i, (label, goal_num, start, dur, color, desc) in enumerate(gantt_rows):
+        if i >= rows_shown:
+            break
+        y = Inches(1.7) + row_height * i
 
-    # Arrows between phases
-    if i < 2:
-        arrow_right(slide, left + phase_w + Inches(0.01),
-                    top + Inches(1.8), Inches(0.18), Inches(0.18))
+        if i % 2 == 0:
+            add_rect(slide, Inches(0.8), y, Inches(11.7), row_height,
+                     LIGHT_GRAY_BG, None, 0.01)
 
-# Checkpoint callouts at bottom
-ckpt_y = Inches(5.8)
-add_rect(slide, Inches(0.8), ckpt_y, Inches(5.85), Inches(0.7), CARD, BORDER)
-bar = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE,
-                              Inches(0.8), ckpt_y, Pt(4), Inches(0.7))
-bar.fill.solid()
-bar.fill.fore_color.rgb = RED
-bar.line.fill.background()
-text(slide, Inches(1.2), ckpt_y + Inches(0.08), Inches(5.0), Inches(0.2),
-     "DAY-45 CHECKPOINT", size=10, color=RED, bold=True)
-text(slide, Inches(1.2), ckpt_y + Inches(0.35), Inches(5.0), Inches(0.3),
-     "If AI draft acceptance is below 50%, review scope and\nknowledge base quality before continuing.",
-     size=11, color=BODY)
+        text(slide, Inches(0.8), y + Inches(0.05), Inches(2.8), Inches(0.28),
+             label, size=9, color=BLACK, bold=True)
 
-add_rect(slide, Inches(6.85), ckpt_y, Inches(5.85), Inches(0.7), CARD, BORDER)
-bar2 = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE,
-                               Inches(6.85), ckpt_y, Pt(4), Inches(0.7))
-bar2.fill.solid()
-bar2.fill.fore_color.rgb = RED
-bar2.line.fill.background()
-text(slide, Inches(7.25), ckpt_y + Inches(0.08), Inches(5.0), Inches(0.2),
-     "DAY-90 GO / NO-GO", size=10, color=RED, bold=True)
-text(slide, Inches(7.25), ckpt_y + Inches(0.35), Inches(5.0), Inches(0.3),
-     "CEO decides: scale to RockShox and broader product\nlines, adjust approach, or stop and redirect spend.",
-     size=11, color=BODY)
+        if goal_num:
+            text(slide, Inches(3.4), y + Inches(0.05), Inches(0.5), Inches(0.28),
+                 goal_num, size=8, color=RED, bold=True)
 
-slide_footer(slide, page)
+        bar_x = gantt_left + month_w * start
+        bar_w = month_w * dur
+        bar = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
+                                     int(bar_x), y + Inches(0.06),
+                                     int(bar_w), Inches(0.24))
+        bar.fill.solid()
+        bar.fill.fore_color.rgb = color
+        bar.line.fill.background()
+        bar.adjustments[0] = 0.15
+
+        if dur >= 1.0:
+            text(slide, int(bar_x) + Inches(0.1), y + Inches(0.06),
+                 int(bar_w) - Inches(0.2), Inches(0.24),
+                 desc, size=7,
+                 color=RGBColor(0xFF, 0xFF, 0xFF) if color == GANTT_ACCENT else BLACK)
+
+    # Legend only on final build
+    if build_idx == len(gantt_builds) - 1:
+        text(slide, Inches(0.8), Inches(6.1), Inches(11), Inches(0.25),
+             "Day-45 checkpoint: scope review if draft acceptance < 50%  |  "
+             "Day-90: go / no-go decision",
+             size=9, color=GRAY, align=PP_ALIGN.CENTER)
+
+    slide_footer(slide, page)
 
 
 # ----------------------------------------------------------
@@ -995,7 +1011,7 @@ for ci, (col_title, items) in enumerate(enabler_cols):
              detail, size=11, color=BODY)
 
 # Hartsell readiness quote
-quote_box(slide, Inches(0.8), Inches(6.15), Inches(11.7), Inches(0.55),
+quote_box(slide, Inches(0.8), Inches(6.3), Inches(11.7), Inches(0.7),
           "We are 60 to 70 percent of the way to deploying a bounded support "
           "assistant for AXS and Hammerhead products.",
           "Jordan Hartsell, VP Digital Products, SRAM")
