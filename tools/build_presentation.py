@@ -313,6 +313,10 @@ quote_box(slide, Inches(0.8), Inches(5.3), Inches(12.1), Inches(0.85),
           "That is a fundamentally different data relationship.",
           "Jordan Hartsell, VP Digital Products, SRAM")
 
+text(slide, Inches(0.8), Inches(6.5), Inches(11.5), Inches(0.25),
+     "Sources: MTB share per Bicycle Retailer industry analysis; Trustpilot rating as of Feb 2026 (n=180+ reviews)",
+     size=8, color=GRAY)
+
 slide_footer(slide, page)
 
 
@@ -808,6 +812,11 @@ multitext(slide, Inches(7.3), Inches(5.85), Inches(5.2), Inches(0.8), [
     ("Net value: $10.2M  |  Return: 3.8x", 13, BLACK, True),
 ], 1.15)
 
+text(slide, Inches(0.8), Inches(6.5), Inches(5.5), Inches(0.25),
+     "Estimates based on industry benchmarks, interview data, and SRAM public filings. "
+     "Full breakdown in Appendix A1.",
+     size=8, color=GRAY)
+
 slide_footer(slide, page)
 
 
@@ -959,6 +968,51 @@ quote_box(slide, Inches(0.8), Inches(6.15), Inches(11.7), Inches(0.55),
           "We are 60 to 70 percent of the way to deploying a bounded support "
           "assistant for AXS and Hammerhead products.",
           "Jordan Hartsell, VP Digital Products, SRAM")
+
+slide_footer(slide, page)
+
+
+# ----------------------------------------------------------
+# SLIDE: Trade-offs and Risks
+# ----------------------------------------------------------
+page += 1
+slide = prs.slides.add_slide(blank)
+set_slide_bg(slide)
+slide_header(slide, "THE TRADE-OFFS",
+             "Three risks worth naming before the decision")
+
+tradeoffs = [
+    ("Dealer trust is fragile",
+     "One confident wrong answer from the AI reaches a dealer, and the support "
+     "team loses credibility it spent years building. Human-in-the-loop and "
+     "weekly quality reviews mitigate this, but they also slow throughput gains.",
+     "MITIGATION: Kill criteria trigger rollback at first safety error"),
+    ("Data consolidation has no executive sponsor",
+     "Hartsell owns digital products but not the CRM, ERP, or inventory systems. "
+     "Phase 2 requires a unified data layer across those systems. Without a "
+     "senior sponsor, data integration stalls and the pilot stays isolated.",
+     "MITIGATION: CEO assigns cross-functional data owner in parallel"),
+    ("AI hype creates unrealistic internal expectations",
+     "SRAM's engineering culture values precision. If leadership frames AI as a "
+     "silver bullet rather than a tool, early imperfections will fuel skepticism "
+     "and internal resistance to future phases.",
+     "MITIGATION: Frame pilot as experiment with defined success and failure criteria"),
+]
+
+for i, (title, desc, mitigation) in enumerate(tradeoffs):
+    top = Inches(1.5) + Inches(i * 1.75)
+    add_rect(slide, Inches(0.8), top, Inches(11.5), Inches(1.5), CARD, BORDER)
+    bar = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE,
+                                 Inches(0.8), top, Pt(4), Inches(1.5))
+    bar.fill.solid()
+    bar.fill.fore_color.rgb = ACCENT_RED_SOFT
+    bar.line.fill.background()
+    text(slide, Inches(1.2), top + Inches(0.1), Inches(10.5), Inches(0.3),
+         title, size=14, color=BLACK, bold=True)
+    text(slide, Inches(1.2), top + Inches(0.45), Inches(10.5), Inches(0.6),
+         desc, size=11, color=BODY)
+    text(slide, Inches(1.2), top + Inches(1.1), Inches(10.5), Inches(0.25),
+         mitigation, size=10, color=GRAY, bold=True)
 
 slide_footer(slide, page)
 
