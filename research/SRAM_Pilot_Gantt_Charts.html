@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 9pt;
+    color: #000000;
+    background: #ffffff;
+    max-width: 680px;
+    margin: 24px auto;
+    padding: 0 8px;
+  }
+
+  h1 {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 11pt;
+    font-weight: bold;
+    color: #000000;
+    margin-bottom: 2px;
+    margin-top: 30px;
+  }
+  h1:first-of-type { margin-top: 0; }
+
+  .subtitle {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 7.5pt;
+    color: #444444;
+    margin-bottom: 7px;
+  }
+
+  /* ── Legend ── */
+  .legend {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 7.5pt;
+    color: #000;
+    margin-bottom: 7px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+  .legend-item { display: flex; align-items: center; gap: 4px; }
+  .swatch {
+    width: 18px; height: 10px;
+    display: inline-block;
+    border: 1px solid #888;
+  }
+  .swatch-active   { background: #1A1A1A; }
+  .swatch-scale    { background: #6B6B6B; }
+  .swatch-gate     { background: #000000; }
+  .swatch-ongoing  {
+    background: repeating-linear-gradient(
+      -45deg, #AAAAAA 0px, #AAAAAA 2px, #FFFFFF 2px, #FFFFFF 5px
+    );
+  }
+
+  /* ── Table shell ── */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: fixed;
+    font-family: 'Times New Roman', Times, serif;
+  }
+  td, th {
+    border: 1px solid #888888;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  /* ── Column widths ── */
+  .col-task { width: 29%; }
+  .col-q8   { width: 8.875%; }   /* 8 time cols: 71% / 8 */
+  .col-q9   { width: 7.89%;  }   /* 9 time cols: 71% / 9 */
+
+  /* ── Time header ── */
+  .th-time {
+    font-family: 'Times New Roman', Times, serif;
+    background-color: #3A3A3A;
+    color: #FFFFFF;
+    text-align: center;
+    font-weight: bold;
+    font-size: 7pt;
+    padding: 3px 1px;
+    line-height: 1.25;
+  }
+  .th-label {
+    font-family: 'Times New Roman', Times, serif;
+    background-color: #3A3A3A;
+    color: #FFFFFF;
+    font-weight: bold;
+    font-size: 7.5pt;
+    padding: 4px 5px;
+    text-align: left;
+  }
+  .th-sub {
+    font-weight: normal;
+    font-size: 6.5pt;
+    color: #CCCCCC;
+    display: block;
+  }
+
+  /* ── Section header rows ── */
+  tr.sec-hdr td {
+    background-color: #000000;
+    color: #FFFFFF;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: bold;
+    font-size: 7.5pt;
+    padding: 4px 5px;
+    letter-spacing: 0.2px;
+  }
+  .ph-tag {
+    font-weight: normal;
+    font-size: 7pt;
+    color: #BBBBBB;
+    margin-left: 5px;
+  }
+
+  /* ── Task rows ── */
+  tr.task-row { height: 24px; }
+  tr.task-row:nth-child(even) td.task-label { background-color: #F7F7F7; }
+
+  td.task-label {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 7.5pt;
+    padding: 3px 5px;
+    background-color: #FFFFFF;
+    vertical-align: middle;
+    line-height: 1.25;
+    color: #000000;
+  }
+
+  /* ── Bar cells ── */
+  td.bar-active {
+    background-color: #1A1A1A;
+    border-color: #555555;
+  }
+  td.bar-scale {
+    background-color: #6B6B6B;
+    border-color: #555555;
+  }
+  td.bar-ongoing {
+    background: repeating-linear-gradient(
+      -45deg, #AAAAAA 0px, #AAAAAA 2px, #FFFFFF 2px, #FFFFFF 5px
+    );
+    border-color: #888888;
+  }
+  td.bar-empty {
+    background-color: #FFFFFF;
+  }
+
+  /* ── Milestone rows ── */
+  tr.ms-row { height: 20px; }
+  tr.ms-row td {
+    background-color: #EEEEEE;
+    font-family: 'Times New Roman', Times, serif;
+    font-style: italic;
+    font-size: 7pt;
+    padding: 2px 5px;
+    color: #000000;
+    vertical-align: middle;
+  }
+  tr.ms-row td:first-child { font-weight: bold; font-style: italic; }
+  td.ms-x {
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
+    text-align: center;
+    font-weight: bold;
+    font-style: normal !important;
+    font-size: 9pt;
+    vertical-align: middle;
+  }
+
+  /* ── Footnote ── */
+  .footnote {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 7pt;
+    color: #333333;
+    margin-top: 6px;
+    border-top: 1px solid #888888;
+    padding-top: 4px;
+    line-height: 1.5;
+  }
+
+  /* ── Divider between charts ── */
+  .divider {
+    border-top: 1.5px solid #000000;
+    margin: 28px 0 0 0;
+    padding-top: 3px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════
+     CHART 1 — Customer and Dealer Warranty Support Pilot
+     ════════════════════════════════════════════════════════════ -->
+
+<div style="font-family:'Times New Roman',Times,serif; font-size:9pt; font-weight:bold; margin-bottom:2px;">Customer and Dealer Warranty Support Pilot</div>
+<div class="subtitle">Month 1–24 &nbsp;·&nbsp; All AI-drafted responses require human agent approval during pilot period &nbsp;·&nbsp; ◆ = Decision Gate</div>
+
+<div class="legend">
+  <div class="legend-item"><span class="swatch swatch-active"></span> Active Pilot Work</div>
+  <div class="legend-item"><span class="swatch swatch-scale"></span> Scale / Deployment</div>
+  <div class="legend-item"><span class="swatch swatch-gate"></span> ◆ Decision Gate</div>
+  <div class="legend-item"><span class="swatch swatch-ongoing"></span> Ongoing / Maintenance</div>
+</div>
+
+<table>
+  <colgroup>
+    <col class="col-task">
+    <col class="col-q8"><col class="col-q8"><col class="col-q8"><col class="col-q8">
+    <col class="col-q8"><col class="col-q8"><col class="col-q8"><col class="col-q8">
+  </colgroup>
+  <tr>
+    <th class="th-label">Initiative / Task</th>
+    <th class="th-time">Q1<span class="th-sub">M 1–3</span></th>
+    <th class="th-time">Q2<span class="th-sub">M 4–6</span></th>
+    <th class="th-time">Q3<span class="th-sub">M 7–9</span></th>
+    <th class="th-time">Q4<span class="th-sub">M 10–12</span></th>
+    <th class="th-time">Q5<span class="th-sub">M 13–15</span></th>
+    <th class="th-time">Q6<span class="th-sub">M 16–18</span></th>
+    <th class="th-time">Q7<span class="th-sub">M 19–21</span></th>
+    <th class="th-time">Q8<span class="th-sub">M 22–24</span></th>
+  </tr>
+
+  <!-- Phase 1 -->
+  <tr class="sec-hdr"><td colspan="9">PHASE 1  ·  SETUP &amp; INTEGRATION<span class="ph-tag">Month 1–3</span></td></tr>
+  <tr class="task-row">
+    <td class="task-label">Pilot Design + Baseline Metrics</td>
+    <td class="bar-active"></td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+  </tr>
+  <tr class="task-row">
+    <td class="task-label">Kendra + Bedrock (AWS) Integration</td>
+    <td class="bar-active"></td>
+    <td class="bar-active"></td>
+    <td class="bar-empty"></td><td class="bar-empty"></td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+  </tr>
+
+  <!-- Phase 2 -->
+  <tr class="sec-hdr"><td colspan="9">PHASE 2  ·  AXS DRIVETRAIN PILOT<span class="ph-tag">Month 4–6</span></td></tr>
+  <tr class="task-row">
+    <td class="task-label">AXS Drivetrain Ticket Rollout [100% human review]</td>
+    <td class="bar-empty"></td>
+    <td class="bar-active"></td>
+    <td class="bar-active"></td>
+    <td class="bar-empty"></td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+  </tr>
+  <tr class="ms-row">
+    <td>◆  Day-45 Draft Acceptance Checkpoint  (G3 ≥50% gate)</td>
+    <td class="bar-empty"></td>
+    <td class="ms-x">◆</td>
+    <td class="bar-empty"></td><td class="bar-empty"></td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+  </tr>
+
+  <!-- Phase 3 -->
+  <tr class="sec-hdr"><td colspan="9">PHASE 3  ·  HAMMERHEAD EXPANSION + WARRANTY TRACK<span class="ph-tag">Month 7–12</span></td></tr>
+  <tr class="task-row">
+    <td class="task-label">Hammerhead Device Ticket Expansion</td>
+    <td class="bar-empty"></td><td class="bar-empty"></td>
+    <td class="bar-active"></td>
+    <td class="bar-active"></td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+  </tr>
+  <tr class="task-row">
+    <td class="task-label">Warranty Claim AI Review Track [human final decision]</td>
+    <td class="bar-empty"></td><td class="bar-empty"></td>
+    <td class="bar-active"></td>
+    <td class="bar-active"></td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+  </tr>
+  <tr class="ms-row">
+    <td>◆  Day-90 Go / No-Go Decision</td>
+    <td class="bar-empty"></td><td class="bar-empty"></td>
+    <td class="ms-x">◆</td>
+    <td class="bar-empty"></td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+  </tr>
+
+  <!-- Phase 4 -->
+  <tr class="sec-hdr"><td colspan="9">PHASE 4  ·  SCALE TO FULL PRODUCT CATALOG<span class="ph-tag">Month 13–24</span></td></tr>
+  <tr class="task-row">
+    <td class="task-label">Full Product Catalog Rollout</td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+    <td class="bar-scale"></td>
+    <td class="bar-scale"></td>
+    <td class="bar-scale"></td>
+    <td class="bar-scale"></td>
+  </tr>
+  <tr class="task-row">
+    <td class="task-label">Semi-Autonomous Response Tier [low-risk categories]</td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+    <td class="bar-empty"></td>
+    <td class="bar-scale"></td>
+    <td class="bar-scale"></td>
+    <td class="bar-ongoing"></td>
+  </tr>
+</table>
+
+
+
+<!-- ════════════════════════════════════════════════════════════
+     CHART 2 — Demand Forecasting and Supply Chain Optimization Pilot
+     ════════════════════════════════════════════════════════════ -->
+
+<div style="font-family:'Times New Roman',Times,serif; font-size:9pt; font-weight:bold; margin-top:20px; margin-bottom:2px;">Demand Forecasting and Supply Chain Optimization Pilot</div>
+<div class="subtitle">Month 22–48 &nbsp;·&nbsp; Requires Data Lakehouse with ≥85% data quality before launch &nbsp;·&nbsp; ◆ = Decision Gate</div>
+
+<div class="legend">
+  <div class="legend-item"><span class="swatch swatch-active"></span> Active Pilot Work</div>
+  <div class="legend-item"><span class="swatch swatch-scale"></span> Scale / Deployment</div>
+  <div class="legend-item"><span class="swatch swatch-gate"></span> ◆ Decision Gate</div>
+  <div class="legend-item"><span class="swatch swatch-ongoing"></span> Ongoing / Maintenance</div>
+</div>
+
+<table>
+  <colgroup>
+    <col class="col-task">
+    <col class="col-q9"><col class="col-q9"><col class="col-q9">
+    <col class="col-q9"><col class="col-q9"><col class="col-q9">
+    <col class="col-q9"><col class="col-q9"><col class="col-q9">
+  </colgroup>
+  <tr>
+    <th class="th-label">Initiative / Task</th>
+    <th class="th-time">P1<span class="th-sub">M 22–24</span></th>
+    <th class="th-time">P2<span class="th-sub">M 25–27</span></th>
+    <th class="th-time">P3<span class="th-sub">M 28–30</span></th>
+    <th class="th-time">P4<span class="th-sub">M 31–33</span></th>
+    <th class="th-time">P5<span class="th-sub">M 34–36</span></th>
+    <th class="th-time">P6<span class="th-sub">M 37–39</span></th>
+    <th class="th-time">P7<span class="th-sub">M 40–42</span></th>
+    <th class="th-time">P8<span class="th-sub">M 43–45</span></th>
+    <th class="th-time">P9<span class="th-sub">M 46–48</span></th>
+  </tr>
+
+  <!-- Phase 0 -->
+  <tr class="sec-hdr"><td colspan="10">PHASE 0  ·  DATA READINESS GATE<span class="ph-tag">Month 22–24</span></td></tr>
+  <tr class="task-row">
+    <td class="task-label">Data Readiness Audit [≥85% completeness on pilot SKUs]</td>
+    <td class="bar-active"></td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+  </tr>
+  <tr class="ms-row">
+    <td>◆  Data Quality Gate — hard go / no-go before model training</td>
+    <td class="ms-x">◆</td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+  </tr>
+
+  <!-- Phase 1 -->
+  <tr class="sec-hdr"><td colspan="10">PHASE 1  ·  MODEL DEVELOPMENT &amp; BACK-TEST<span class="ph-tag">Month 25–30</span></td></tr>
+  <tr class="task-row">
+    <td class="task-label">SageMaker Model Development [top-50 SKUs by revenue]</td>
+    <td class="bar-empty"></td>
+    <td class="bar-active"></td>
+    <td class="bar-active"></td>
+    <td class="bar-empty"></td><td class="bar-empty"></td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+  </tr>
+  <tr class="ms-row">
+    <td>◆  Back-Test Validation Gate  (MAPE ≤15% required to proceed)</td>
+    <td class="bar-empty"></td>
+    <td class="ms-x">◆</td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+  </tr>
+
+  <!-- Phase 2 -->
+  <tr class="sec-hdr"><td colspan="10">PHASE 2  ·  SHADOW MODE PILOT<span class="ph-tag">Month 28–33</span></td></tr>
+  <tr class="task-row">
+    <td class="task-label">Shadow Mode — Model Runs Parallel, Planners Observe Only</td>
+    <td class="bar-empty"></td><td class="bar-empty"></td>
+    <td class="bar-active"></td>
+    <td class="bar-active"></td>
+    <td class="bar-empty"></td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+  </tr>
+  <tr class="ms-row">
+    <td>◆  Shadow Checkpoint  (MAPE ≤20% live; planner adoption signal)</td>
+    <td class="bar-empty"></td><td class="bar-empty"></td>
+    <td class="ms-x">◆</td>
+    <td class="bar-empty"></td><td class="bar-empty"></td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+  </tr>
+
+  <!-- Phase 3 -->
+  <tr class="sec-hdr"><td colspan="10">PHASE 3  ·  ACTIVE PILOT — PLANNERS ACT ON MODEL OUTPUT<span class="ph-tag">Month 31–36</span></td></tr>
+  <tr class="task-row">
+    <td class="task-label">Active Pilot — Planners Act on Recommendations [overrides logged]</td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+    <td class="bar-active"></td>
+    <td class="bar-active"></td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+  </tr>
+  <tr class="ms-row">
+    <td>◆  Full Pilot Evaluation + Scale Decision</td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+    <td class="ms-x">◆</td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+  </tr>
+
+  <!-- Phase 4 -->
+  <tr class="sec-hdr"><td colspan="10">PHASE 4  ·  FULL SCALE — ALL SKUs + BRANDS<span class="ph-tag">Month 37+</span></td></tr>
+  <tr class="task-row">
+    <td class="task-label">Full SKU Catalog + Multi-Brand Deployment</td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+    <td class="bar-scale"></td>
+    <td class="bar-scale"></td>
+    <td class="bar-ongoing"></td>
+    <td class="bar-ongoing"></td>
+  </tr>
+  <tr class="task-row">
+    <td class="task-label">Quarterly Model Retraining Cadence</td>
+    <td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td><td class="bar-empty"></td>
+    <td class="bar-scale"></td>
+    <td class="bar-scale"></td>
+    <td class="bar-scale"></td>
+    <td class="bar-scale"></td>
+  </tr>
+</table>
+
+
+</body>
+</html>
